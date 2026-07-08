@@ -16,7 +16,10 @@ export default function Home() {
   // Lê os mesmos riscos (incluindo edições salvas) usados na página de
   // Riscos, então este número nunca fica dessincronizado.
   const riskMetrics = getRiskMetrics(loadRisks());
-  
+const teamMembers = JSON.parse(
+  localStorage.getItem('lg-dashboard:team-members') || '[]'
+);
+
 const executiveStatus =
   riskMetrics.critical >= 3
     ? 'red'
@@ -32,13 +35,13 @@ const executiveStatus =
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
-    {
-      icon: Users,
-      label: 'Membros da Equipe',
-      value: '16',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
+{
+  icon: Users,
+  label: 'Membros da Equipe',
+  value: String(teamMembers.length),
+  color: 'text-green-600',
+  bgColor: 'bg-green-50',
+},
     {
       icon: Calendar,
       label: 'Dias até Deadline',

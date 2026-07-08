@@ -1,24 +1,6 @@
-[17:23, 7/7/2026] Renato PEREIRA: import { CheckCircle2, AlertCircle, Clock, XCircle } from 'lucide-react';
-
-interface Module {
-  name: string;
-  status: 'completed' | 'in-progress' | 'not-started' | 'cancelled';
-}
-
-export default function ModulesDashboard() {
-  const modules = {
-    completed: [
-      { name: 'Folha de Pagamento', status: 'completed' },
-      { name: 'Ponto Eletrônico / REP', status: 'completed' },
-      { name: 'Gestão de Benefícios', status: 'completed' },
-      { name: 'Autoatendimento & Mobile', status: 'completed' },
-      { name: 'Alteração Cadastral', status: 'completed' },
-      { name: 'Workflow de Dependentes', status: 'completed' },
-      { name: 'Workflow Férias, Dados', status: 'completed' },
-      { name: 'Workflow de Afastamento', status: 'completed' },
-    ]…
-[17:25, 7/7/2026] Renato PEREIRA: import { Users, Mail, Building2 } from 'lucide-react';
-import { useState } from 'react';
+import { Users, Mail, Trash2, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface TeamMember {
   id: string;
@@ -29,137 +11,55 @@ interface TeamMember {
   department: string;
 }
 
+const STORAGE_KEY = 'lg-dashboard:team-members';
+
+const defaultMembers: TeamMember[] = [
+  { id: '1', name: 'Bruno Rafael Costa Freitas', email: 'bfreitas@sodimac.com.br', role: 'Desenvolvedor', organization: 'SODIMAC', department: 'Desenvolvimento' },
+  { id: '2', name: 'Raquel Patta Lisboa', email: 'rlisboa@sodimac.com.br', role: 'Analista de Sistemas', organization: 'SODIMAC', department: 'Análise' },
+  { id: '3', name: 'André Silveira', email: 'ansilveira@sodimac.com.br', role: 'Desenvolvedor', organization: 'SODIMAC', department: 'Desenvolvimento' },
+  { id: '4', name: 'Marislani', email: 'marislani@sodimac.com.br', role: 'Administrativo', organization: 'SODIMAC', department: 'Administrativo' },
+  { id: '5', name: 'Douglas Martins Moura', email: 'douglas.moura@lg.com.br', role: 'Gerente de Projeto', organization: 'LG', department: 'Gerência' },
+  { id: '6', name: 'Silvia Melo Neves', email: 'sneves@sodimac.com.br', role: 'Gerente de RH', organization: 'SODIMAC', department: 'RH' },
+  { id: '7', name: 'Rodrigo Froes Pereira', email: 'rfroes@sodimac.com.br', role: 'Suporte Técnico', organization: 'SODIMAC', department: 'Suporte' },
+  { id: '8', name: 'Roger Patrocinio Cardoso', email: 'roger.cardoso@lg.com.br', role: 'Gerente Executivo', organization: 'LG', department: 'Gerência' },
+  { id: '9', name: 'Valdirene Santos', email: 'valdirene.santos@lg.com.br', role: 'Administrativo', organization: 'LG', department: 'Administrativo' },
+  { id: '10', name: 'Douglas Felipe Belio', email: 'dbelio@sodimac.com.br', role: 'Desenvolvedor', organization: 'SODIMAC', department: 'Desenvolvimento' },
+  { id: '11', name: 'Denis Soares Dias', email: 'ddias@sodimac.com.br', role: 'Gerente de TI', organization: 'SODIMAC', department: 'TI' },
+  { id: '12', name: 'Alex Bertuqui', email: 'abertuqui@sodimac.com.br', role: 'Desenvolvedor', organization: 'SODIMAC', department: 'Desenvolvimento' },
+  { id: '13', name: 'Daniel Neris de Souza', email: 'dsouza@sodimac.com.br', role: 'Analista de Sistemas', organization: 'SODIMAC', department: 'Análise' },
+  { id: '14', name: 'Jessé Pereira de Souza Toledo', email: 'jtoledo_ext@sodimac.com.br', role: 'Suporte Técnico', organization: 'SODIMAC', department: 'Suporte' },
+  { id: '15', name: 'Dagmar Orlando Monteiro Duarte', email: 'dduarte@sodimac.com.br', role: 'Auditor', organization: 'SODIMAC', department: 'Auditoria' },
+  { id: '16', name: 'Renato Pereira', email: 'rpereira@falabella.cl', role: 'Administrativo', organization: 'FALABELLA', department: 'Administrativo' },
+];
+
+const emptyForm = {
+  name: '',
+  email: '',
+  role: '',
+  organization: 'SODIMAC' as TeamMember['organization'],
+  department: '',
+};
+
 export default function TeamMembers() {
-  const teamMembers: TeamMember[] = [
-    {
-      id: '1',
-      name: 'Bruno Rafael Costa Freitas',
-      email: 'bfreitas@sodimac.com.br',
-      role: 'Desenvolvedor',
-      organization: 'SODIMAC',
-      department: 'Desenvolvimento',
-    },
-    {
-      id: '2',
-      name: 'Raquel Patta Lisboa',
-      email: 'rlisboa@sodimac.com.br',
-      role: 'Analista de Sistemas',
-      organization: 'SODIMAC',
-      department: 'Análise',
-    },
-    {
-      id: '3',
-      name: 'André Silveira',
-      email: 'ansilveira@sodimac.com.br',
-      role: 'Desenvolvedor',
-      organization: 'SODIMAC',
-      department: 'Desenvolvimento',
-    },
-    {
-      id: '4',
-      name: 'Marislani',
-      email: 'marislani@sodimac.com.br',
-      role: 'Administrativo',
-      organization: 'SODIMAC',
-      department: 'Administrativo',
-    },
-    {
-      id: '5',
-      name: 'Douglas Martins Moura',
-      email: 'douglas.moura@lg.com.br',
-      role: 'Gerente de Projeto',
-      organization: 'LG',
-      department: 'Gerência',
-    },
-    {
-      id: '6',
-      name: 'Silvia Melo Neves',
-      email: 'sneves@sodimac.com.br',
-      role: 'Gerente de RH',
-      organization: 'SODIMAC',
-      department: 'RH',
-    },
-    {
-      id: '7',
-      name: 'Rodrigo Froes Pereira',
-      email: 'rfroes@sodimac.com.br',
-      role: 'Suporte Técnico',
-      organization: 'SODIMAC',
-      department: 'Suporte',
-    },
-    {
-      id: '8',
-      name: 'Roger Patrocinio Cardoso',
-      email: 'roger.cardoso@lg.com.br',
-      role: 'Gerente Executivo',
-      organization: 'LG',
-      department: 'Gerência',
-    },
-    {
-      id: '9',
-      name: 'Valdirene Santos',
-      email: 'valdirene.santos@lg.com.br',
-      role: 'Administrativo',
-      organization: 'LG',
-      department: 'Administrativo',
-    },
-    {
-      id: '10',
-      name: 'Douglas Felipe Belio',
-      email: 'dbelio@sodimac.com.br',
-      role: 'Desenvolvedor',
-      organization: 'SODIMAC',
-      department: 'Desenvolvimento',
-    },
-    {
-      id: '11',
-      name: 'Denis Soares Dias',
-      email: 'ddias@sodimac.com.br',
-      role: 'Gerente de TI',
-      organization: 'SODIMAC',
-      department: 'TI',
-    },
-    {
-      id: '12',
-      name: 'Alex Bertuqui',
-      email: 'abertuqui@sodimac.com.br',
-      role: 'Desenvolvedor',
-      organization: 'SODIMAC',
-      department: 'Desenvolvimento',
-    },
-    {
-      id: '13',
-      name: 'Daniel Neris de Souza',
-      email: 'dsouza@sodimac.com.br',
-      role: 'Analista de Sistemas',
-      organization: 'SODIMAC',
-      department: 'Análise',
-    },
-    {
-      id: '14',
-      name: 'Jessé Pereira de Souza Toledo',
-      email: 'jtoledo_ext@sodimac.com.br',
-      role: 'Suporte Técnico',
-      organization: 'SODIMAC',
-      department: 'Suporte',
-    },
-    {
-      id: '15',
-      name: 'Dagmar Orlando Monteiro Duarte',
-      email: 'dduarte@sodimac.com.br',
-      role: 'Auditor',
-      organization: 'SODIMAC',
-      department: 'Auditoria',
-    },
-    {
-      id: '16',
-      name: 'Renato Pereira',
-      email: 'rpereira@falabella.cl',
-      role: 'Administrativo',
-      organization: 'FALABELLA',
-      department: 'Administrativo',
-    },
-  ];
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : defaultMembers;
+    } catch {
+      return defaultMembers;
+    }
+  });
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newMember, setNewMember] = useState(emptyForm);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(teamMembers));
+    } catch {
+      // localStorage indisponível - segue apenas em memória
+    }
+  }, [teamMembers]);
 
   const getOrgColor = (org: string) => {
     switch (org) {
@@ -185,7 +85,7 @@ export default function TeamMembers() {
       'Auditoria': 'bg-red-100 text-red-800',
       'Administrativo': 'bg-gray-100 text-gray-800',
     };
-    return colors[dept] || 'bg-gray-100 text-gray-800';
+    return colors[dept] || 'bg-indigo-100 text-indigo-800';
   };
 
   const stats = {
@@ -202,15 +102,40 @@ export default function TeamMembers() {
     ? teamMembers.filter((m) => m.department === selectedDept)
     : teamMembers;
 
+  const updateMember = (id: string, patch: Partial<TeamMember>) => {
+    setTeamMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+  };
+
+  const deleteMember = (id: string) => {
+    setTeamMembers((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const handleAddMember = () => {
+    if (!newMember.name.trim()) return;
+    const member: TeamMember = {
+      id: Date.now().toString(),
+      ...newMember,
+    };
+    setTeamMembers((prev) => [...prev, member]);
+    setNewMember(emptyForm);
+    setShowAddForm(false);
+  };
+
   return (
     <div className="w-full">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Users className="w-8 h-8 text-primary" />
-          <h2 className="text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Membros da Equipe
-          </h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Users className="w-8 h-8 text-primary" />
+            <h2 className="text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Membros da Equipe
+            </h2>
+          </div>
+          <Button className="bg-primary hover:bg-blue-800 text-white gap-2" onClick={() => setShowAddForm((v) => !v)}>
+            <Plus className="w-4 h-4" />
+            Adicionar Membro
+          </Button>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
           Total de {stats.total} membros distribuídos entre SODIMAC, LG e Falabella
@@ -218,8 +143,56 @@ export default function TeamMembers() {
         <div className="h-1 w-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded"></div>
       </div>
 
+      {/* Add Form */}
+      {showAddForm && (
+        <div className="mb-8 bg-white rounded-lg border border-border shadow-sm p-6">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Novo Membro</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <input
+              className="p-2 border border-border rounded-lg text-sm"
+              placeholder="Nome completo"
+              value={newMember.name}
+              onChange={(e) => setNewMember((f) => ({ ...f, name: e.target.value }))}
+            />
+            <input
+              className="p-2 border border-border rounded-lg text-sm"
+              placeholder="Email"
+              value={newMember.email}
+              onChange={(e) => setNewMember((f) => ({ ...f, email: e.target.value }))}
+            />
+            <input
+              className="p-2 border border-border rounded-lg text-sm"
+              placeholder="Cargo"
+              value={newMember.role}
+              onChange={(e) => setNewMember((f) => ({ ...f, role: e.target.value }))}
+            />
+            <input
+              className="p-2 border border-border rounded-lg text-sm"
+              placeholder="Departamento"
+              value={newMember.department}
+              onChange={(e) => setNewMember((f) => ({ ...f, department: e.target.value }))}
+            />
+            <select
+              className="p-2 border border-border rounded-lg text-sm sm:col-span-2"
+              value={newMember.organization}
+              onChange={(e) => setNewMember((f) => ({ ...f, organization: e.target.value as TeamMember['organization'] }))}
+            >
+              <option value="SODIMAC">SODIMAC</option>
+              <option value="LG">LG</option>
+              <option value="FALABELLA">FALABELLA</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setShowAddForm(false)}>Cancelar</Button>
+            <Button className="bg-primary hover:bg-blue-800 text-white" onClick={handleAddMember}>
+              Salvar Membro
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Organization Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-lg border border-border shadow-sm p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-2">Total de Membros</p>
           <p className="text-3xl font-bold text-foreground">{stats.total}</p>
@@ -269,7 +242,7 @@ export default function TeamMembers() {
         </div>
       </div>
 
-      {/* Team Members Table */}
+      {/* Team Members Table - cargo e departamento são editáveis inline */}
       <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         {filteredMembers.length === 0 ? (
           <div className="p-12 text-center text-sm text-muted-foreground">
@@ -285,6 +258,7 @@ export default function TeamMembers() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Cargo</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Departamento</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Organização</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -299,17 +273,39 @@ export default function TeamMembers() {
                         </a>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-foreground">{member.role}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={inline-block px-3 py-1 rounded-full text-xs font-semibold ${getDepartmentColor(member.department)}}>
-                        {member.department}
-                      </span>
+                    <td className="px-6 py-4 text-sm text-foreground">
+                      <input
+                        className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none px-0.5"
+                        value={member.role}
+                        onChange={(e) => updateMember(member.id, { role: e.target.value })}
+                      />
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div className={inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}}>
-                        <Building2 className="w-3 h-3" />
-                        {member.organization}
-                      </div>
+                      <input
+                        className={px-3 py-1 rounded-full text-xs font-semibold border-b border-transparent hover:border-border focus:border-primary focus:outline-none ${getDepartmentColor(member.department)}}
+                        value={member.department}
+                        onChange={(e) => updateMember(member.id, { department: e.target.value })}
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <select
+                        className={inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}}
+                        value={member.organization}
+                        onChange={(e) => updateMember(member.id, { organization: e.target.value as TeamMember['organization'] })}
+                      >
+                        <option value="SODIMAC">SODIMAC</option>
+                        <option value="LG">LG</option>
+                        <option value="FALABELLA">FALABELLA</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <button
+                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                        onClick={() => deleteMember(member.id)}
+                        title="Remover membro"
+                      >
+                        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -322,7 +318,7 @@ export default function TeamMembers() {
       {/* Footer Note */}
       <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-sm text-blue-900">
-          <strong>Total de Membros Únicos:</strong> {stats.total} pessoas
+          <strong>Total de Membros:</strong> {stats.total} pessoas
           <br />
           <strong>Distribuição:</strong> SODIMAC ({stats.sodimac}), LG ({stats.lg}), Falabella ({stats.falabella})
           <br />

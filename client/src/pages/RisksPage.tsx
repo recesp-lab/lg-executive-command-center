@@ -25,6 +25,10 @@ export default function RisksPage() {
   const [newRisk, setNewRisk] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Risk | null>(null);
+  
+const teamMembers = JSON.parse(
+  localStorage.getItem('lg-dashboard:team-members') || '[]'
+);
 
   useEffect(() => {
     try {

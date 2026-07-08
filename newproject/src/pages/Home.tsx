@@ -1,6 +1,9 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import RiskSemaphore from '@/components/RiskSemaphore';
 import ModulesDashboard from '@/components/ModulesDashboard';
+const modules = JSON.parse(
+  localStorage.getItem('lg-dashboard:modules') || '[]'
+);
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
@@ -20,6 +23,17 @@ const teamMembers = JSON.parse(
   localStorage.getItem('lg-dashboard:team-members') || '[]'
 );
 
+const completedModules = modules.filter(
+  (m: any) => m.status === 'completed'
+).length;
+
+const completionPercentage =
+  modules.length > 0
+    ? Math.round(
+        (completedModules / modules.length) * 100
+      )
+    : 0;
+  
 const executiveStatus =
   riskMetrics.critical >= 3
     ? 'red'
@@ -28,13 +42,13 @@ const executiveStatus =
     : 'green';
   
   const quickStats = [
-    {
-      icon: TrendingUp,
-      label: 'Taxa de Conclusão',
-      value: '35%',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
+{
+  icon: TrendingUp,
+  label: 'Taxa de Conclusão',
+  value: `${completionPercentage}%`,
+  color: 'text-blue-600',
+  bgColor: 'bg-blue-50',
+},
 {
   icon: Users,
   label: 'Membros da Equipe',

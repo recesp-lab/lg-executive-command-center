@@ -1,6 +1,6 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import RiskSemaphore from '@/components/RiskSemaphore';
-import { AlertCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, Trash2, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { getRiskMetrics, loadRisks, RISKS_STORAGE_KEY, type Risk } from '@/data/risksData';
@@ -23,6 +23,8 @@ export default function RisksPage() {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newRisk, setNewRisk] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<Risk | null>(null);
 
   useEffect(() => {
     try {
@@ -50,6 +52,8 @@ export default function RisksPage() {
     resolved: { label: 'Resolvido', color: 'bg-green-50 text-green-700' },
   };
 
+  // A matriz de risco (mais abaixo) e o semáforo lêem diretamente de risks,
+  // então qualquer edição salva aqui atualiza os dois automaticamente.
   const riskMetrics = getRiskMetrics(risks);
 
   const handleAddRisk = () => {
@@ -65,6 +69,23 @@ export default function RisksPage() {
 
   const handleDelete = (id: string) => {
     setRisks((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const startEdit = (risk: Risk) => {
+    setEditingId(risk.id);
+    setEditDraft({ ...risk });
+  };
+
+  const saveEdit = () => {
+    if (!editDraft) return;
+    setRisks((prev) => prev.map((r) => (r.id === editDraft.id ? editDraft : r)));
+    setEditingId(null);
+    setEditDraft(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft(null);
   };
 
   return (
@@ -125,6 +146,15 @@ export default function RisksPage() {
                 <option value="medium">Probabilidade: Média</option>
                 <option value="low">Probabilidade: Baixa</option>
               </select>
+              <select
+                className="p-2 border border-border rounded-lg text-sm"
+                value={newRisk.status}
+                onChange={(e) => setNewRisk((f) => ({ ...f, status: e.target.value as Risk['status'] }))}
+              >
+                <option value="open">Status: Aberto</option>
+                <option value="mitigating">Status: Em Mitigação</option>
+                <option value="resolved">Status: Resolvido</option>
+              </select>
               <input
                 className="p-2 border border-border rounded-lg text-sm"
                 placeholder="Responsável"
@@ -171,90 +201,191 @@ export default function RisksPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {risks.map((risk) => (
-                  <div
-                    key={risk.id}
-                    className="border border-border rounded-lg p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-foreground mb-2">
-                          {risk.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {risk.description}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${
-                            statusConfig[risk.status].color
-                          }`}
-                        >
-                          {statusConfig[risk.status].label}
-                        </span>
-                        <button
-                          className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                          onClick={() => handleDelete(risk.id)}
-                          title="Remover risco"
-                        >
-                          <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
-                        </button>
-                      </div>
-                    </div>
+                {risks.map((risk) => {
+                  const isEditing = editingId === risk.id;
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 py-4 border-t border-b border-border">
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          Impacto
-                        </p>
-                        <span
-                          className={`inline-block px-2 py-1 rounded text-xs font-medium border ${
-                            impactConfig[risk.impact].color
-                          }`}
-                        >
-                          {impactConfig[risk.impact].label}
-                        </span>
+                  if (isEditing && editDraft) {
+                    return (
+                      <div key={risk.id} className="border-2 border-primary rounded-lg p-6 bg-blue-50/30">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                          <input
+                            className="p-2 border border-border rounded-lg text-sm sm:col-span-2 font-semibold"
+                            placeholder="Título"
+                            value={editDraft.title}
+                            onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })}
+                          />
+                          <input
+                            className="p-2 border border-border rounded-lg text-sm sm:col-span-2"
+                            placeholder="Descrição"
+                            value={editDraft.description}
+                            onChange={(e) => setEditDraft({ ...editDraft, description: e.target.value })}
+                          />
+                          <div>
+                            <label className="text-xs text-muted-foreground font-semibold mb-1 block">Impacto</label>
+                            <select
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.impact}
+                              onChange={(e) => setEditDraft({ ...editDraft, impact: e.target.value as Risk['impact'] })}
+                            >
+                              <option value="critical">Crítico</option>
+                              <option value="medium">Médio</option>
+                              <option value="low">Baixo</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground font-semibold mb-1 block">Probabilidade</label>
+                            <select
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.probability}
+                              onChange={(e) => setEditDraft({ ...editDraft, probability: e.target.value as Risk['probability'] })}
+                            >
+                              <option value="high">Alta</option>
+                              <option value="medium">Média</option>
+                              <option value="low">Baixa</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground font-semibold mb-1 block">Status</label>
+                            <select
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.status}
+                              onChange={(e) => setEditDraft({ ...editDraft, status: e.target.value as Risk['status'] })}
+                            >
+                              <option value="open">Aberto</option>
+                              <option value="mitigating">Em Mitigação</option>
+                              <option value="resolved">Resolvido</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground font-semibold mb-1 block">Responsável</label>
+                            <input
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.owner}
+                              onChange={(e) => setEditDraft({ ...editDraft, owner: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground font-semibold mb-1 block">Prazo</label>
+                            <input
+                              type="date"
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.dueDate}
+                              onChange={(e) => setEditDraft({ ...editDraft, dueDate: e.target.value })}
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="text-xs text-muted-foreground font-semibold mb-1 block">Plano de Mitigação</label>
+                            <input
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.mitigation}
+                              onChange={(e) => setEditDraft({ ...editDraft, mitigation: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-3">
+                          <Button variant="outline" onClick={cancelEdit}>
+                            <X className="w-4 h-4 mr-1" /> Cancelar
+                          </Button>
+                          <Button className="bg-primary hover:bg-blue-800 text-white" onClick={saveEdit}>
+                            <Save className="w-4 h-4 mr-1" /> Salvar
+                          </Button>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          Probabilidade
-                        </p>
-                        <p className={`text-sm font-semibold ${probabilityConfig[risk.probability].color}`}>
-                          {probabilityConfig[risk.probability].label}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          Responsável
-                        </p>
-                        <p className="text-sm font-medium text-foreground">{risk.owner}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          Prazo
-                        </p>
-                        <p className="text-sm font-medium text-foreground">
-                          {risk.dueDate ? new Date(risk.dueDate).toLocaleDateString('pt-BR') : '—'}
-                        </p>
-                      </div>
-                    </div>
+                    );
+                  }
 
-                    <div>
-                      <p className="text-xs text-muted-foreground font-semibold mb-2">
-                        Plano de Mitigação
-                      </p>
-                      <p className="text-sm text-foreground bg-secondary p-3 rounded-lg">
-                        {risk.mitigation || 'Não definido'}
-                      </p>
+                  return (
+                    <div
+                      key={risk.id}
+                      className="border border-border rounded-lg p-6 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-foreground mb-2">
+                            {risk.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {risk.description}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${
+                              statusConfig[risk.status].color
+                            }`}
+                          >
+                            {statusConfig[risk.status].label}
+                          </span>
+                          <button
+                            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                            onClick={() => startEdit(risk)}
+                            title="Editar risco"
+                          >
+                            <Edit2 className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                          </button>
+                          <button
+                            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                            onClick={() => handleDelete(risk.id)}
+                            title="Remover risco"
+                          >
+                            <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 py-4 border-t border-b border-border">
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold mb-1">
+                            Impacto
+                          </p>
+                          <span
+                            className={`inline-block px-2 py-1 rounded text-xs font-medium border ${
+                              impactConfig[risk.impact].color
+                            }`}
+                          >
+                            {impactConfig[risk.impact].label}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold mb-1">
+                            Probabilidade
+                          </p>
+                          <p className={text-sm font-semibold ${probabilityConfig[risk.probability].color}}>
+                            {probabilityConfig[risk.probability].label}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold mb-1">
+                            Responsável
+                          </p>
+                          <p className="text-sm font-medium text-foreground">{risk.owner}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold mb-1">
+                            Prazo
+                          </p>
+                          <p className="text-sm font-medium text-foreground">
+                            {risk.dueDate ? new Date(risk.dueDate).toLocaleDateString('pt-BR') : '—'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-muted-foreground font-semibold mb-2">
+                          Plano de Mitigação
+                        </p>
+                        <p className="text-sm text-foreground bg-secondary p-3 rounded-lg">
+                          {risk.mitigation || 'Não definido'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
 
-          {/* Risk Matrix */}
+          {/* Risk Matrix - se atualiza automaticamente pois lê direto de risks */}
           <div className="bg-white rounded-lg border border-border shadow-sm p-6">
             <h2 className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
               Matriz de Risco
@@ -305,7 +436,7 @@ export default function RisksPage() {
                           return (
                             <td
                               key={probLevel}
-                              className={`px-3 py-3 align-top border ${cellColor}`}
+                              className={px-3 py-3 align-top border ${cellColor}}
                             >
                               {cellRisks.length === 0 ? (
                                 <span className="text-xs text-muted-foreground">—</span>

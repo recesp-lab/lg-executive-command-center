@@ -148,7 +148,7 @@ export default function ModulesDashboard() {
       {/* Status Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statusOrder.map((status) => (
-          <div key={status} className={${statusConfig[status].color} text-white p-6 rounded-lg shadow-lg}>
+           <div   key={status}   className={`${statusConfig[status].color} text-white p-6 rounded-lg shadow-lg`} >
             <div className="text-5xl font-bold mb-2">{String(stats[status]).padStart(2, '0')}</div>
             <div className="text-sm font-bold uppercase tracking-wide">{statusConfig[status].label}</div>
           </div>
@@ -162,9 +162,9 @@ export default function ModulesDashboard() {
           return (
             <div
               key={status}
-              className={${statusConfig[status].bgLight} p-4 rounded-lg border-l-4 ${statusConfig[status].border} min-h-96 flex flex-col}
+              className={`${statusConfig[status].bgLight} p-4 rounded-lg border-l-4 ${statusConfig[status].border} min-h-96 flex flex-col`}
             >
-              <h3 className={font-bold ${statusConfig[status].text} mb-3 text-sm uppercase}>
+              <h3 className={`font-bold ${statusConfig[status].text} mb-3 text-sm uppercase`}>
                 {columnTitle[status]} ({columnModules.length})
               </h3>
               <div className="space-y-3 flex-1">
@@ -231,8 +231,8 @@ export default function ModulesDashboard() {
           percentages[status] > 0 ? (
             <div
               key={status}
-              className={${statusConfig[status].color} flex items-center justify-center text-white font-bold text-xs px-1}
-              style={{ width: ${percentages[status]}% }}
+              className={`${statusConfig[status].color} flex items-center justify-center text-white font-bold text-xs px-1`}
+              style={{ width: `${percentages[status]}%` }}
             >
               {percentages[status]}%
             </div>

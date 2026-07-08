@@ -371,13 +371,13 @@ export default function AuditPlan() {
       getStatusLabel(a.status),
     ]);
     const csv = [header, ...rows]
-      .map((row) => row.map((cell) => "${String(cell).replace(/"/g, '""')}").join(','))
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
       .join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = plano-auditoria-RA600802-${new Date().toISOString().slice(0, 10)}.csv;
+    a.download = `plano-auditoria-RA600802-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();

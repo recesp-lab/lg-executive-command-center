@@ -268,7 +268,7 @@ export default function TeamMembers() {
                     <td className="px-6 py-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-blue-600" />
-                        <a href={mailto:${member.email}} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline">
                           {member.email}
                         </a>
                       </div>
@@ -282,14 +282,14 @@ export default function TeamMembers() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <input
-                        className={px-3 py-1 rounded-full text-xs font-semibold border-b border-transparent hover:border-border focus:border-primary focus:outline-none ${getDepartmentColor(member.department)}}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold border-b border-transparent hover:border-border focus:border-primary focus:outline-none ${getDepartmentColor(member.department)}`}
                         value={member.department}
                         onChange={(e) => updateMember(member.id, { department: e.target.value })}
                       />
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <select
-                        className={inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}}
+                         className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}`}
                         value={member.organization}
                         onChange={(e) => updateMember(member.id, { organization: e.target.value as TeamMember['organization'] })}
                       >

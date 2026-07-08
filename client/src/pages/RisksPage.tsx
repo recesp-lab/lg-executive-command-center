@@ -436,7 +436,7 @@ export default function RisksPage() {
                           return (
                             <td
                               key={probLevel}
-                              className={px-3 py-3 align-top border ${cellColor}}
+                              className={`px-3 py-3 align-top border ${cellColor}`}}
                             >
                               {cellRisks.length === 0 ? (
                                 <span className="text-xs text-muted-foreground">—</span>

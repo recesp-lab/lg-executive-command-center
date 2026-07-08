@@ -1,4 +1,4 @@
-[17:27, 7/7/2026] Renato PEREIRA: import { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { BarChart3, TrendingUp, AlertCircle, Calendar, ClipboardList, Users } from 'lucide-react';
 import { Link } from 'wouter';
 

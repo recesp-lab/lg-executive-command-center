@@ -23,13 +23,6 @@ const executiveStatus =
     : riskMetrics.critical >= 1
     ? 'yellow'
     : 'green';
-
-const executiveStatus =
-  riskMetrics.critical >= 3
-    ? 'red'
-    : riskMetrics.critical >= 1
-    ? 'yellow'
-    : 'green';
   
   const quickStats = [
     {
@@ -157,8 +150,8 @@ const executiveStatus =
                         {stat.label}
                       </p>
                     </div>
-                    <div className={${stat.bgColor} p-3 rounded-lg}>
-                      <Icon className={w-6 h-6 ${stat.color}} />
+                    <div className={`${stat.bgColor} p-3 rounded-lg`}>
+                      <Icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                   </div>
                   <p className="text-3xl font-mono font-bold text-foreground">

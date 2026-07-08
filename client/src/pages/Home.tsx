@@ -1,9 +1,6 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import RiskSemaphore from '@/components/RiskSemaphore';
 import ModulesDashboard from '@/components/ModulesDashboard';
-const modules = JSON.parse(
-  localStorage.getItem('lg-dashboard:modules') || '[]'
-);
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
@@ -23,6 +20,10 @@ const teamMembers = JSON.parse(
   localStorage.getItem('lg-dashboard:team-members') || '[]'
 );
 
+const modules = JSON.parse(
+  localStorage.getItem('lg-dashboard:modules') || '[]'
+);
+  
 const completedModules = modules.filter(
   (m: any) => m.status === 'completed'
 ).length;

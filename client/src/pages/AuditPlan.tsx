@@ -10,7 +10,7 @@ interface AuditAction {
   section: string;
   startDate: string;
   endDate: string;
-  responsible: string[];
+  responsibleIds: string[];
   status: 'completed' | 'in-progress' | 'planned' | 'blocked';
 }
 

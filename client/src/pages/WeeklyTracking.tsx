@@ -1,4 +1,4 @@
-[15:00, 7/7/2026] Renato PEREIRA: import DashboardLayout from '@/components/DashboardLayout';
+import DashboardLayout from '@/components/DashboardLayout';
 import { AlertCircle, CheckCircle2, Clock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';

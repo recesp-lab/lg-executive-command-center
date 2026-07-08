@@ -3,7 +3,6 @@ import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
-import { loadTeamMembers } from '../lib/teamMembersStore';
 
 interface AuditAction {
   id: string;
@@ -284,8 +283,25 @@ export default function AuditPlan() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<AuditAction | null>(null);
 
-  const teamMembers = loadTeamMembers();
-
+const teamMembers = [
+  { id: '1', name: 'Bruno Rafael Costa Freitas' },
+  { id: '2', name: 'Raquel Patta Lisboa' },
+  { id: '3', name: 'André Silveira' },
+  { id: '4', name: 'Marislani' },
+  { id: '5', name: 'Douglas Martins Moura' },
+  { id: '6', name: 'Silvia Melo Neves' },
+  { id: '7', name: 'Rodrigo Froes Pereira' },
+  { id: '8', name: 'Roger Patrocinio Cardoso' },
+  { id: '9', name: 'Valdirene Santos' },
+  { id: '10', name: 'Douglas Felipe Belio' },
+  { id: '11', name: 'Denis Soares Dias' },
+  { id: '12', name: 'Alex Bertuqui' },
+  { id: '13', name: 'Daniel Neris de Souza' },
+  { id: '14', name: 'Jessé Pereira de Souza Toledo' },
+  { id: '15', name: 'Dagmar Orlando Monteiro Duarte' },
+  { id: '16', name: 'Renato Pereira' }
+];
+  
   const startEdit = (action: AuditAction) => {
     setEditingId(action.id);
     setEditDraft({ ...action });

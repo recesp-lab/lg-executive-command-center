@@ -283,7 +283,7 @@ const daysToDeadline = Math.max(
     </p>
 
     <p className="text-2xl font-bold text-foreground">
-      {riskMetrics.total}
+      {riskMetrics.critical + riskMetrics.medium + riskMetrics.low}
     </p>
 
     <p className="text-xs text-red-600 font-semibold mt-1">

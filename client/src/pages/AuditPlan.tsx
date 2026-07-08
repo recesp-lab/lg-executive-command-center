@@ -283,6 +283,8 @@ export default function AuditPlan() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<AuditAction | null>(null);
 
+  const teamMembers = loadTeamMembers();
+
   const startEdit = (action: AuditAction) => {
     setEditingId(action.id);
     setEditDraft({ ...action });
@@ -478,18 +480,30 @@ export default function AuditPlan() {
                                   onChange={(e) => setEditDraft({ ...editDraft, endDate: e.target.value })}
                                 />
                               </td>
-                              <td className="px-6 py-3 align-top">
-                                <input
-                                  className="w-full p-1.5 border border-border rounded text-sm"
-                                  placeholder="Separar por vírgula"
-                                  value={editDraft.responsible.join(', ')}
-                                  onChange={(e) =>
-                                    setEditDraft({
-                                      ...editDraft,
-                                      responsible: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
-                                    })
-                                  }
-                                />
+                              <td className="px-6 py-3 align-top">                            
+<select
+  multiple
+  className="w-full p-1.5 border border-border rounded text-sm h-32"
+  value={editDraft.responsible}
+  onChange={(e) =>
+    setEditDraft({
+      ...editDraft,
+      responsible: Array.from(
+        e.target.selectedOptions,
+        (option) => option.value
+      ),
+    })
+  }
+>
+  {teamMembers.map((member: any) => (
+    <option
+      key={member.id}
+      value={member.name}
+    >
+      {member.name}
+    </option>
+  ))}
+</select>
                               </td>
                               <td className="px-6 py-3 align-top">
                                 <select

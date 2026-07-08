@@ -159,12 +159,27 @@ const teamMembers = JSON.parse(
                 <option value="mitigating">Status: Em Mitigação</option>
                 <option value="resolved">Status: Resolvido</option>
               </select>
-              <input
-                className="p-2 border border-border rounded-lg text-sm"
-                placeholder="Responsável"
-                value={newRisk.owner}
-                onChange={(e) => setNewRisk((f) => ({ ...f, owner: e.target.value }))}
-              />
+<select
+  className="p-2 border border-border rounded-lg text-sm"
+  value={newRisk.owner}
+  onChange={(e) =>
+    setNewRisk((f) => ({
+      ...f,
+      owner: e.target.value,
+    }))
+  }
+>
+  <option value="">Selecione um responsável</option>
+
+  {teamMembers.map((member: any) => (
+    <option
+      key={member.id}
+      value={member.name}
+    >
+      {member.name}
+    </option>
+  ))}
+</select>
               <input
                 type="date"
                 className="p-2 border border-border rounded-lg text-sm"

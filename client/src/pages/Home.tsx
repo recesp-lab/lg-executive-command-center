@@ -252,11 +252,12 @@ const daysToDeadline = Math.max(
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Prazo: 01/09/2026</p>
-              </div>
-            </div>
-          
-          {/* Key Metrics */}
+ <p className="text-xs text-muted-foreground mt-1">Prazo: 01/09/2026</p>
+</div>
+</div>
+</div>
+
+{/* Key Metrics */}
           <div className="bg-white rounded-lg border border-border shadow-sm p-6">
             <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
               Indicadores-Chave

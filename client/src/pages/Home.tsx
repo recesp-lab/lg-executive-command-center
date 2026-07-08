@@ -40,6 +40,17 @@ const executiveStatus =
     : riskMetrics.critical >= 1
     ? 'yellow'
     : 'green';
+const projectDeadline = new Date('2026-08-31');
+
+const today = new Date();
+
+const daysToDeadline = Math.max(
+  0,
+  Math.ceil(
+    (projectDeadline.getTime() - today.getTime()) /
+      (1000 * 60 * 60 * 24)
+  )
+);
   
   const quickStats = [
 {
@@ -56,13 +67,13 @@ const executiveStatus =
   color: 'text-green-600',
   bgColor: 'bg-green-50',
 },
-    {
-      icon: Calendar,
-      label: 'Dias até Deadline',
-      value: '31',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-    },
+{
+  icon: Calendar,
+  label: 'Dias até Deadline',
+  value: String(daysToDeadline),
+  color: 'text-purple-600',
+  bgColor: 'bg-purple-50',
+},
     {
       icon: AlertCircle,
       label: 'Riscos Críticos',
@@ -250,20 +261,34 @@ const executiveStatus =
               Indicadores-Chave
             </h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground font-semibold mb-2">
-                  Velocidade da Equipe
-                </p>
-                <p className="text-2xl font-bold text-foreground">8.5</p>
-                <p className="text-xs text-green-600 font-semibold mt-1">↑ 12% vs semana anterior</p>
-              </div>
-              <div className="p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground font-semibold mb-2">
-                  Taxa de Defeitos
-                </p>
-                <p className="text-2xl font-bold text-foreground">2.3%</p>
-                <p className="text-xs text-red-600 font-semibold mt-1">↑ 0.5% vs semana anterior</p>
-              </div>
+
+  <div className="p-4 bg-secondary rounded-lg">
+    <p className="text-xs text-muted-foreground font-semibold mb-2">
+      Saúde do Programa
+    </p>
+
+    <p className="text-2xl font-bold text-foreground">
+      {completionPercentage}%
+    </p>
+
+    <p className="text-xs text-blue-600 font-semibold mt-1">
+      % de módulos concluídos
+    </p>
+  </div>
+  <div className="p-4 bg-secondary rounded-lg">
+    <p className="text-xs text-muted-foreground font-semibold mb-2">
+      Riscos Totais
+    </p>
+
+    <p className="text-2xl font-bold text-foreground">
+      {riskMetrics.total}
+    </p>
+
+    <p className="text-xs text-red-600 font-semibold mt-1">
+      Monitorados pelo programa
+    </p>
+  </div>
+</div>
             </div>
           </div>
         </div>

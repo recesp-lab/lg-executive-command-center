@@ -540,7 +540,7 @@ export default function AuditPlan() {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-sm">
-                              <div className={inline-flex items-center gap-2 px-3 py-1 rounded-full border ${getStatusColor(action.status)}}>
+                              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${getStatusColor(action.status)}`}>
                                 {getStatusIcon(action.status)}
                                 {getStatusLabel(action.status)}
                               </div>

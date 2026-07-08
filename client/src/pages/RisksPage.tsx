@@ -350,7 +350,7 @@ export default function RisksPage() {
                           <p className="text-xs text-muted-foreground font-semibold mb-1">
                             Probabilidade
                           </p>
-                          <p className={text-sm font-semibold ${probabilityConfig[risk.probability].color}}>
+                           <p   className={`text-sm font-semibold ${probabilityConfig[risk.probability].color}`} >
                             {probabilityConfig[risk.probability].label}
                           </p>
                         </div>

@@ -24,6 +24,8 @@ const teamMembers = JSON.parse(
 const modules = JSON.parse(
   localStorage.getItem('lg-dashboard:modules') || '[]'
 );
+
+console.log('Modules:', modules);
   
 const completedModules = modules.filter(
   (m: any) => m.status === 'completed'

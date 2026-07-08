@@ -16,7 +16,21 @@ export default function Home() {
   // Lê os mesmos riscos (incluindo edições salvas) usados na página de
   // Riscos, então este número nunca fica dessincronizado.
   const riskMetrics = getRiskMetrics(loadRisks());
+  
+const executiveStatus =
+  riskMetrics.critical >= 3
+    ? 'red'
+    : riskMetrics.critical >= 1
+    ? 'yellow'
+    : 'green';
 
+const executiveStatus =
+  riskMetrics.critical >= 3
+    ? 'red'
+    : riskMetrics.critical >= 1
+    ? 'yellow'
+    : 'green';
+  
   const quickStats = [
     {
       icon: TrendingUp,
@@ -58,7 +72,7 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `projeto-lg-dashboard-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = projeto-lg-dashboard-${new Date().toISOString().slice(0, 10)}.json;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -70,7 +84,12 @@ export default function Home() {
       <div className="p-8">
         {/* Hero Section */}
         <div className="mb-8">
-          <div className="relative rounded-lg overflow-hidden mb-4 h-48 bg-gradient-to-br from-blue-900 to-blue-700">
+          <div className="relative rounded-lg overflow-hidden mb-4">
+            <img
+              src="/manus-storage/hero-dashboard_5313de43.png"
+              alt="Hero Dashboard"
+              className="w-full h-48 object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-700/60 flex items-center">
               <div className="px-8">
                 <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -87,6 +106,45 @@ export default function Home() {
             Última atualização de dados: {LAST_UPDATED}
           </p>
 
+<div className="mb-6">
+  <div
+    className={`p-6 rounded-lg border-2 ${
+      executiveStatus === 'green'
+        ? 'bg-green-50 border-green-300'
+        : executiveStatus === 'yellow'
+        ? 'bg-yellow-50 border-yellow-300'
+        : 'bg-red-50 border-red-300'
+    }`}
+  >
+    <div className="flex items-center gap-4">
+      <div className="text-4xl">
+        {executiveStatus === 'green'
+          ? '🟢'
+          : executiveStatus === 'yellow'
+          ? '🟡'
+          : '🔴'}
+      </div>
+
+      <div>
+        <h2 className="font-bold text-lg">
+          Status Executivo do Projeto
+        </h2>
+
+        <p>
+          {executiveStatus === 'green'
+            ? 'Projeto Saudável'
+            : executiveStatus === 'yellow'
+            ? 'Projeto em Atenção'
+            : 'Projeto Crítico'}
+        </p>
+
+        <p className="text-sm mt-1">
+          Riscos Críticos: {riskMetrics.critical}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
           {/* Quick Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickStats.map((stat, index) => {
@@ -99,8 +157,8 @@ export default function Home() {
                         {stat.label}
                       </p>
                     </div>
-                    <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                      <Icon className={`w-6 h-6 ${stat.color}`} />
+                    <div className={${stat.bgColor} p-3 rounded-lg}>
+                      <Icon className={w-6 h-6 ${stat.color}} />
                     </div>
                   </div>
                   <p className="text-3xl font-mono font-bold text-foreground">

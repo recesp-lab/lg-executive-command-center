@@ -2,7 +2,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
+import { loadTeamMembers } from '@/lib/teamMembersStore';
 
 interface AuditAction {
   id: string;
@@ -10,7 +10,7 @@ interface AuditAction {
   section: string;
   startDate: string;
   endDate: string;
-  responsibleIds: string[];
+  responsible: string[];
   status: 'completed' | 'in-progress' | 'planned' | 'blocked';
 }
 

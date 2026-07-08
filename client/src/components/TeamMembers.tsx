@@ -268,7 +268,7 @@ export default function TeamMembers() {
                     <td className="px-6 py-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-blue-600" />
-                        <a href={mailto:${member.email}} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline">
                           {member.email}
                         </a>
                       </div>

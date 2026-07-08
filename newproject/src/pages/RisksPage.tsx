@@ -277,11 +277,27 @@ const teamMembers = JSON.parse(
                           </div>
                           <div>
                             <label className="text-xs text-muted-foreground font-semibold mb-1 block">Responsável</label>
-                            <input
-                              className="w-full p-2 border border-border rounded-lg text-sm"
-                              value={editDraft.owner}
-                              onChange={(e) => setEditDraft({ ...editDraft, owner: e.target.value })}
-                            />
+<select
+  className="w-full p-2 border border-border rounded-lg text-sm"
+  value={editDraft.owner}
+  onChange={(e) =>
+    setEditDraft({
+      ...editDraft,
+      owner: e.target.value,
+    })
+  }
+>
+  <option value="">Selecione um responsável</option>
+
+  {teamMembers.map((member: any) => (
+    <option
+      key={member.id}
+      value={member.name}
+    >
+      {member.name}
+    </option>
+  ))}
+</select>
                           </div>
                           <div>
                             <label className="text-xs text-muted-foreground font-semibold mb-1 block">Prazo</label>

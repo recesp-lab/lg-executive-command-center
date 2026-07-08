@@ -1,139 +1,138 @@
-[15:00, 7/7/2026] Renato PEREIRA: import DashboardLayout from '@/components/DashboardLayout';
-import { AlertCircle, CheckCircle2, Clock, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-
-interface AuditAction {
-  id: string;
-  activity: string;
-  section: string;
-  startDate: string;
-  endDate: string;
-  responsible: string[];
-  status: 'completed' | 'in-progress' | 'planned' | 'blocked';
-}
-
-export default function AuditPlan() {
-  const auditActions: AuditAction[] = [
-    // 3.1 Exposição de dados sensíveis (Backup Datamace)
-    {
-      id: '3.1.1',
-      activity: 'Eliminar o backup da rede compartilhada',
-      section: '3.1 Exposição de dados sensíveis (Backup Datamace)',
-      startDate: '2026-06-15',
-      endDate: '2026-06-22…
-[15:03, 7/7/2026] Renato PEREIRA: import DashboardLayout from '@/components/DashboardLayout';
-import { Calendar, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CheckCircle2, AlertCircle, Clock, XCircle, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface WeeklyUpdate {
-  id: string;
-  module: string;
-  status: 'completed' | 'inProgress' | 'blocked';
-  description: string;
-  owner: string;
-  dueDate: string;
-  priority: 'high' | 'medium' | 'low';
-}
-
-const STORAGE_KEY = 'lg-dashboard:weekly-updates';
-const NOTES_STORAGE_KEY = 'lg-dashboard:weekly-notes';
-
-const defaultUpdates: WeeklyUpdate[] = [
-  {
-    id: '1',
-    module: 'Backend API',
-    status: 'completed',
-    description: 'Implementação de endpoints de autenticação concluída',
-    owner: 'Dev Team',
-    dueDate: '2026-07…
-[17:23, 7/7/2026] Renato PEREIRA: import { CheckCircle2, AlertCircle, Clock, XCircle } from 'lucide-react';
+type ModuleStatus = 'completed' | 'in-progress' | 'not-started' | 'cancelled';
 
 interface Module {
+  id: string;
   name: string;
-  status: 'completed' | 'in-progress' | 'not-started' | 'cancelled';
+  version?: string;
+  status: ModuleStatus;
+  comment: string;
 }
 
+const STORAGE_KEY = 'lg-dashboard:modules';
+
+const defaultModules: Module[] = [
+  { id: '1', name: 'Folha de Pagamento', status: 'completed', comment: '' },
+  { id: '2', name: 'Ponto Eletrônico / REP', status: 'completed', comment: '' },
+  { id: '3', name: 'Gestão de Benefícios', status: 'completed', comment: '' },
+  { id: '4', name: 'Autoatendimento & Mobile', status: 'completed', comment: '' },
+  { id: '5', name: 'Alteração Cadastral', status: 'completed', comment: '' },
+  { id: '6', name: 'Workflow de Dependentes', status: 'completed', comment: '' },
+  { id: '7', name: 'Workflow Férias, Dados', status: 'completed', comment: '' },
+  { id: '8', name: 'Workflow de Afastamento', status: 'completed', comment: '' },
+  { id: '9', name: 'Interface Contábil/Financ.', version: '5.08', status: 'in-progress', comment: '' },
+  { id: '10', name: 'Cargos e Salários', version: '3.07-6.07', status: 'in-progress', comment: '' },
+  { id: '11', name: 'Orçamento de Pessoal', version: '17.8', status: 'in-progress', comment: '' },
+  { id: '12', name: 'Comissão Digital, Roteirização', version: 'J-C7-6.7', status: 'in-progress', comment: '' },
+  { id: '13', name: 'Assinador Digital', version: '3.07', status: 'in-progress', comment: '' },
+  { id: '14', name: 'Workflow Benefícios', version: '6.07 - 8.07', status: 'in-progress', comment: '' },
+  { id: '15', name: 'Workflow Rescisão', version: '6.07 - 8.07', status: 'in-progress', comment: '' },
+  { id: '16', name: 'Workflow de lançamento de valores', version: '5.07', status: 'in-progress', comment: '' },
+  { id: '17', name: 'Workflow Vale-Transporte', version: '6.07', status: 'in-progress', comment: '' },
+  { id: '18', name: 'People Analytics + IA', status: 'not-started', comment: '' },
+  { id: '19', name: 'Workflow Movimentação', version: 'TBC', status: 'not-started', comment: '' },
+  { id: '20', name: 'New Collector', status: 'cancelled', comment: '' },
+  { id: '21', name: 'Reconhecimento Facial', status: 'cancelled', comment: '' },
+  { id: '22', name: 'Restaurante', status: 'cancelled', comment: '' },
+];
+
+const statusConfig: Record<ModuleStatus, { color: string; label: string; icon: typeof CheckCircle2; bgLight: string; border: string; text: string }> = {
+  completed: {
+    color: 'bg-blue-500',
+    label: 'IMPLANTADOS (base sólida)',
+    icon: CheckCircle2,
+    bgLight: 'bg-blue-50',
+    border: 'border-blue-500',
+    text: 'text-blue-900',
+  },
+  'in-progress': {
+    color: 'bg-yellow-400',
+    label: 'EM ANDAMENTO (alto volume crítico)',
+    icon: Clock,
+    bgLight: 'bg-yellow-50',
+    border: 'border-yellow-400',
+    text: 'text-yellow-900',
+  },
+  'not-started': {
+    color: 'bg-red-500',
+    label: 'NÃO INICIADO',
+    icon: AlertCircle,
+    bgLight: 'bg-red-50',
+    border: 'border-red-500',
+    text: 'text-red-900',
+  },
+  cancelled: {
+    color: 'bg-gray-500',
+    label: 'CANCELADOS',
+    icon: XCircle,
+    bgLight: 'bg-gray-100',
+    border: 'border-gray-500',
+    text: 'text-gray-900',
+  },
+};
+
+const statusOrder: ModuleStatus[] = ['completed', 'in-progress', 'not-started', 'cancelled'];
+const columnTitle: Record<ModuleStatus, string> = {
+  completed: 'Implantados',
+  'in-progress': 'Em Andamento',
+  'not-started': 'Não Iniciado',
+  cancelled: 'Cancelados',
+};
+
 export default function ModulesDashboard() {
-  const modules = {
-    completed: [
-      { name: 'Folha de Pagamento', status: 'completed' },
-      { name: 'Ponto Eletrônico / REP', status: 'completed' },
-      { name: 'Gestão de Benefícios', status: 'completed' },
-      { name: 'Autoatendimento & Mobile', status: 'completed' },
-      { name: 'Alteração Cadastral', status: 'completed' },
-      { name: 'Workflow de Dependentes', status: 'completed' },
-      { name: 'Workflow Férias, Dados', status: 'completed' },
-      { name: 'Workflow de Afastamento', status: 'completed' },
-    ],
-    inProgress: [
-      { name: 'Interface Contábil/Financ.', version: '5.08', status: 'in-progress' },
-      { name: 'Cargos e Salários', version: '3.07-6.07', status: 'in-progress' },
-      { name: 'Orçamento de Pessoal', version: '17.8', status: 'in-progress' },
-      { name: 'Comissão Digital, Roteirização', version: 'J-C7-6.7', status: 'in-progress' },
-      { name: 'Assinador Digital', version: '3.07', status: 'in-progress' },
-      { name: 'Workflow Benefícios', version: '6.07 - 8.07', status: 'in-progress' },
-      { name: 'Workflow Rescisão', version: '6.07 - 8.07', status: 'in-progress' },
-      { name: 'Workflow de lançamento de valores', version: '5.07', status: 'in-progress' },
-      { name: 'Workflow Vale-Transporte', version: '6.07', status: 'in-progress' },
-    ],
-    notStarted: [
-      { name: 'People Analytics + IA', status: 'not-started' },
-      { name: 'Workflow Movimentação', version: 'TBC', status: 'not-started' },
-    ],
-    cancelled: [
-      { name: 'New Collector', status: 'cancelled' },
-      { name: 'Reconhecimento Facial', status: 'cancelled' },
-      { name: 'Restaurante', status: 'cancelled' },
-    ],
+  const [modules, setModules] = useState<Module[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : defaultModules;
+    } catch {
+      return defaultModules;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(modules));
+    } catch {
+      // localStorage indisponível - segue apenas em memória
+    }
+  }, [modules]);
+
+  // Estatísticas e percentuais são sempre recalculados a partir do estado atual,
+  // então mudar o status de um módulo atualiza a barra de progresso na hora.
+  const stats: Record<ModuleStatus, number> = {
+    completed: modules.filter((m) => m.status === 'completed').length,
+    'in-progress': modules.filter((m) => m.status === 'in-progress').length,
+    'not-started': modules.filter((m) => m.status === 'not-started').length,
+    cancelled: modules.filter((m) => m.status === 'cancelled').length,
   };
 
-  const stats = {
-    completed: modules.completed.length,
-    inProgress: modules.inProgress.length,
-    notStarted: modules.notStarted.length,
-    cancelled: modules.cancelled.length,
-  };
+  const totalModules = modules.length;
 
-  const totalModules = stats.completed + stats.inProgress + stats.notStarted + stats.cancelled;
-
-  const percentages = {
+  const percentages: Record<ModuleStatus, number> = {
     completed: totalModules ? Math.round((stats.completed / totalModules) * 100) : 0,
-    inProgress: totalModules ? Math.round((stats.inProgress / totalModules) * 100) : 0,
-    notStarted: totalModules ? Math.round((stats.notStarted / totalModules) * 100) : 0,
+    'in-progress': totalModules ? Math.round((stats['in-progress'] / totalModules) * 100) : 0,
+    'not-started': totalModules ? Math.round((stats['not-started'] / totalModules) * 100) : 0,
     cancelled: totalModules ? Math.round((stats.cancelled / totalModules) * 100) : 0,
   };
 
-  const statusConfig = {
-    completed: {
-      color: 'bg-blue-500',
-      textColor: 'text-white',
-      label: 'IMPLANTADOS (base sólida)',
-      icon: CheckCircle2,
-      bgLight: 'bg-blue-50',
-    },
-    inProgress: {
-      color: 'bg-yellow-400',
-      textColor: 'text-white',
-      label: 'EM ANDAMENTO (alto volume crítico)',
-      icon: Clock,
-      bgLight: 'bg-yellow-50',
-    },
-    notStarted: {
-      color: 'bg-red-500',
-      textColor: 'text-white',
-      label: 'NÃO INICIADO',
-      icon: AlertCircle,
-      bgLight: 'bg-red-50',
-    },
-    cancelled: {
-      color: 'bg-gray-500',
-      textColor: 'text-white',
-      label: 'CANCELADOS',
-      icon: XCircle,
-      bgLight: 'bg-gray-50',
-    },
+  const updateModule = (id: string, patch: Partial<Module>) => {
+    setModules((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+  };
+
+  const deleteModule = (id: string) => {
+    setModules((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const addModule = (status: ModuleStatus) => {
+    const newModule: Module = {
+      id: Date.now().toString(),
+      name: 'Novo módulo',
+      status,
+      comment: '',
+    };
+    setModules((prev) => [...prev, newModule]);
   };
 
   return (
@@ -147,125 +146,98 @@ export default function ModulesDashboard() {
       </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        {/* Completed */}
-        <div className="bg-blue-500 text-white p-6 rounded-lg shadow-lg">
-          <div className="text-5xl font-bold mb-2">{String(stats.completed).padStart(2, '0')}</div>
-          <div className="text-sm font-bold uppercase tracking-wide">
-            {statusConfig.completed.label}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {statusOrder.map((status) => (
+          <div key={status} className={${statusConfig[status].color} text-white p-6 rounded-lg shadow-lg}>
+            <div className="text-5xl font-bold mb-2">{String(stats[status]).padStart(2, '0')}</div>
+            <div className="text-sm font-bold uppercase tracking-wide">{statusConfig[status].label}</div>
           </div>
-        </div>
-
-        {/* In Progress */}
-        <div className="bg-yellow-400 text-white p-6 rounded-lg shadow-lg">
-          <div className="text-5xl font-bold mb-2">{String(stats.inProgress).padStart(2, '0')}</div>
-          <div className="text-sm font-bold uppercase tracking-wide">
-            {statusConfig.inProgress.label}
-          </div>
-        </div>
-
-        {/* Not Started */}
-        <div className="bg-red-500 text-white p-6 rounded-lg shadow-lg">
-          <div className="text-5xl font-bold mb-2">{String(stats.notStarted).padStart(2, '0')}</div>
-          <div className="text-sm font-bold uppercase tracking-wide">
-            {statusConfig.notStarted.label}
-          </div>
-        </div>
-
-        {/* Cancelled */}
-        <div className="bg-gray-500 text-white p-6 rounded-lg shadow-lg">
-          <div className="text-5xl font-bold mb-2">{String(stats.cancelled).padStart(2, '0')}</div>
-          <div className="text-sm font-bold uppercase tracking-wide">
-            {statusConfig.cancelled.label}
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Modules Grid */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        {/* Completed Modules */}
-        <div className="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500 min-h-96">
-          <h3 className="font-bold text-blue-900 mb-4 text-sm uppercase">
-            Implantados
-          </h3>
-          <ul className="space-y-3">
-            {modules.completed.map((module, idx) => (
-              <li key={idx} className="text-sm text-blue-800 flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
-                <span>{module.name}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* Modules Grid - each card is fully editable */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
+        {statusOrder.map((status) => {
+          const columnModules = modules.filter((m) => m.status === status);
+          return (
+            <div
+              key={status}
+              className={${statusConfig[status].bgLight} p-4 rounded-lg border-l-4 ${statusConfig[status].border} min-h-96 flex flex-col}
+            >
+              <h3 className={font-bold ${statusConfig[status].text} mb-3 text-sm uppercase}>
+                {columnTitle[status]} ({columnModules.length})
+              </h3>
+              <div className="space-y-3 flex-1">
+                {columnModules.map((module) => (
+                  <div key={module.id} className="bg-white/70 rounded-lg p-3 border border-border/60">
+                    <div className="flex items-start gap-2 mb-2">
+                      <input
+                        className="flex-1 text-sm font-semibold bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none px-0.5"
+                        value={module.name}
+                        onChange={(e) => updateModule(module.id, { name: e.target.value })}
+                      />
+                      <button
+                        onClick={() => deleteModule(module.id)}
+                        title="Remover módulo"
+                        className="shrink-0 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
 
-        {/* In Progress Modules */}
-        <div className="bg-yellow-50 p-6 rounded-lg border-l-4 border-yellow-400 min-h-96">
-          <h3 className="font-bold text-yellow-900 mb-4 text-sm uppercase">
-            Em Andamento
-          </h3>
-          <ul className="space-y-3">
-            {modules.inProgress.map((module, idx) => (
-              <li key={idx} className="text-sm text-yellow-800">
-                <div className="font-semibold text-yellow-900">{module.name}</div>
-                {module.version && (
-                  <div className="text-xs text-yellow-700 mt-1">
-                    {module.version}
+                    <input
+                      className="w-full text-xs text-muted-foreground bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none px-0.5 mb-2"
+                      placeholder="Versão / prazo (opcional)"
+                      value={module.version || ''}
+                      onChange={(e) => updateModule(module.id, { version: e.target.value })}
+                    />
+
+                    <select
+                      className="w-full text-xs rounded border border-border px-2 py-1 mb-2 bg-white"
+                      value={module.status}
+                      onChange={(e) => updateModule(module.id, { status: e.target.value as ModuleStatus })}
+                    >
+                      <option value="completed">Implantado</option>
+                      <option value="in-progress">Em Andamento</option>
+                      <option value="not-started">Não Iniciado</option>
+                      <option value="cancelled">Cancelado</option>
+                    </select>
+
+                    <textarea
+                      className="w-full text-xs rounded border border-border px-2 py-1 bg-white resize-none"
+                      rows={2}
+                      placeholder="Comentário..."
+                      value={module.comment}
+                      onChange={(e) => updateModule(module.id, { comment: e.target.value })}
+                    />
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Not Started Modules */}
-        <div className="bg-red-50 p-6 rounded-lg border-l-4 border-red-500 min-h-96">
-          <h3 className="font-bold text-red-900 mb-4 text-sm uppercase">
-            Não Iniciado
-          </h3>
-          <ul className="space-y-3">
-            {modules.notStarted.map((module, idx) => (
-              <li key={idx} className="text-sm text-red-800">
-                <div className="font-semibold text-red-900">{module.name}</div>
-                {module.version && (
-                  <div className="text-xs text-red-700 mt-1">
-                    {module.version}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Cancelled Modules */}
-        <div className="bg-gray-100 p-6 rounded-lg border-l-4 border-gray-500 min-h-96">
-          <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase">
-            Cancelados
-          </h3>
-          <ul className="space-y-3">
-            {modules.cancelled.map((module, idx) => (
-              <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                <XCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
-                <span className="line-through">{module.name}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+                ))}
+              </div>
+              <button
+                onClick={() => addModule(status)}
+                className="mt-3 flex items-center justify-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground py-2 border border-dashed border-border rounded-lg"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Adicionar módulo
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - auto-calculated from current module statuses */}
       <div className="flex h-16 rounded-lg overflow-hidden shadow-lg mb-6">
-        <div className="bg-blue-500 flex items-center justify-center text-white font-bold text-sm" style={{ width: ${percentages.completed}% }}>
-          {percentages.completed}% CONCLUÍDO
-        </div>
-        <div className="bg-yellow-400 flex items-center justify-center text-white font-bold text-sm" style={{ width: ${percentages.inProgress}% }}>
-          {percentages.inProgress}% EM ANDAMENTO
-        </div>
-        <div className="bg-red-500 flex items-center justify-center text-white font-bold text-sm" style={{ width: ${percentages.notStarted}% }}>
-          {percentages.notStarted}%
-        </div>
-        <div className="bg-gray-500 flex items-center justify-center text-white font-bold text-sm" style={{ width: ${percentages.cancelled}% }}>
-          {percentages.cancelled}%
-        </div>
+        {statusOrder.map((status) =>
+          percentages[status] > 0 ? (
+            <div
+              key={status}
+              className={${statusConfig[status].color} flex items-center justify-center text-white font-bold text-xs px-1}
+              style={{ width: ${percentages[status]}% }}
+            >
+              {percentages[status]}%
+            </div>
+          ) : null
+        )}
       </div>
 
       {/* Meta */}

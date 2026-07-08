@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
 import { useLocation } from 'wouter';
 
+
 // Data da última revisão de conteúdo do dashboard.
 // Atualize esta constante sempre que os números/dados forem revisados.
 const LAST_UPDATED = '06/07/2026';

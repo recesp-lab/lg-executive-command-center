@@ -1,7 +1,8 @@
 import DashboardLayout from '@/components/DashboardLayout';
-import { AlertCircle, CheckCircle2, Clock, Users } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
 interface AuditAction {
   id: string;
@@ -13,8 +14,9 @@ interface AuditAction {
   status: 'completed' | 'in-progress' | 'planned' | 'blocked';
 }
 
-export default function AuditPlan() {
-  const auditActions: AuditAction[] = [
+const AUDIT_STORAGE_KEY = 'lg-dashboard:audit-actions';
+
+const defaultAuditActions: AuditAction[] = [
     // 3.1 Exposição de dados sensíveis (Backup Datamace)
     {
       id: '3.1.1',
@@ -258,7 +260,45 @@ export default function AuditPlan() {
       responsible: ['RH (Silvia)', 'TI (Denis)'],
       status: 'planned',
     },
-  ];
+];
+
+export default function AuditPlan() {
+  const [auditActions, setAuditActions] = useState<AuditAction[]>(() => {
+    try {
+      const saved = localStorage.getItem(AUDIT_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : defaultAuditActions;
+    } catch {
+      return defaultAuditActions;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(auditActions));
+    } catch {
+      // localStorage indisponível - segue apenas em memória
+    }
+  }, [auditActions]);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<AuditAction | null>(null);
+
+  const startEdit = (action: AuditAction) => {
+    setEditingId(action.id);
+    setEditDraft({ ...action });
+  };
+
+  const saveEdit = () => {
+    if (!editDraft) return;
+    setAuditActions((prev) => prev.map((a) => (a.id === editDraft.id ? editDraft : a)));
+    setEditingId(null);
+    setEditDraft(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft(null);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -411,39 +451,112 @@ export default function AuditPlan() {
                         <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Fim</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Responsáveis</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-foreground">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {sectionActions.map((action, idx) => (
-                        <tr key={action.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="px-6 py-4 text-sm text-foreground">{action.activity}</td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {new Date(action.startDate).toLocaleDateString('pt-BR')}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {new Date(action.endDate).toLocaleDateString('pt-BR')}
-                          </td>
-                          <td className="px-6 py-4 text-sm">
-                            <div className="flex flex-wrap gap-1">
-                              {action.responsible.map((resp) => (
-                                <span
-                                  key={resp}
-                                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium"
+                      {sectionActions.map((action, idx) => {
+                        const isEditing = editingId === action.id;
+
+                        if (isEditing && editDraft) {
+                          return (
+                            <tr key={action.id} className="bg-blue-50/40">
+                              <td className="px-6 py-4 text-sm text-foreground align-top">{action.activity}</td>
+                              <td className="px-6 py-3 align-top">
+                                <input
+                                  type="date"
+                                  className="w-full p-1.5 border border-border rounded text-sm"
+                                  value={editDraft.startDate}
+                                  onChange={(e) => setEditDraft({ ...editDraft, startDate: e.target.value })}
+                                />
+                              </td>
+                              <td className="px-6 py-3 align-top">
+                                <input
+                                  type="date"
+                                  className="w-full p-1.5 border border-border rounded text-sm"
+                                  value={editDraft.endDate}
+                                  onChange={(e) => setEditDraft({ ...editDraft, endDate: e.target.value })}
+                                />
+                              </td>
+                              <td className="px-6 py-3 align-top">
+                                <input
+                                  className="w-full p-1.5 border border-border rounded text-sm"
+                                  placeholder="Separar por vírgula"
+                                  value={editDraft.responsible.join(', ')}
+                                  onChange={(e) =>
+                                    setEditDraft({
+                                      ...editDraft,
+                                      responsible: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
+                                    })
+                                  }
+                                />
+                              </td>
+                              <td className="px-6 py-3 align-top">
+                                <select
+                                  className="w-full p-1.5 border border-border rounded text-sm"
+                                  value={editDraft.status}
+                                  onChange={(e) => setEditDraft({ ...editDraft, status: e.target.value as AuditAction['status'] })}
                                 >
-                                  <Users className="w-3 h-3" />
-                                  {resp}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm">
-                            <div className={inline-flex items-center gap-2 px-3 py-1 rounded-full border ${getStatusColor(action.status)}}>
-                              {getStatusIcon(action.status)}
-                              {getStatusLabel(action.status)}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                                  <option value="completed">Concluído</option>
+                                  <option value="in-progress">Em Progresso</option>
+                                  <option value="planned">Planejado</option>
+                                  <option value="blocked">Bloqueado</option>
+                                </select>
+                              </td>
+                              <td className="px-6 py-3 align-top">
+                                <div className="flex items-center gap-2">
+                                  <button className="p-2 hover:bg-secondary rounded-lg transition-colors" onClick={saveEdit} title="Salvar">
+                                    <Save className="w-4 h-4 text-green-600" />
+                                  </button>
+                                  <button className="p-2 hover:bg-secondary rounded-lg transition-colors" onClick={cancelEdit} title="Cancelar">
+                                    <X className="w-4 h-4 text-muted-foreground" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        return (
+                          <tr key={action.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                            <td className="px-6 py-4 text-sm text-foreground">{action.activity}</td>
+                            <td className="px-6 py-4 text-sm text-muted-foreground">
+                              {action.startDate ? new Date(action.startDate).toLocaleDateString('pt-BR') : '—'}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-muted-foreground">
+                              {action.endDate ? new Date(action.endDate).toLocaleDateString('pt-BR') : '—'}
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <div className="flex flex-wrap gap-1">
+                                {action.responsible.map((resp) => (
+                                  <span
+                                    key={resp}
+                                    className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium"
+                                  >
+                                    <Users className="w-3 h-3" />
+                                    {resp}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <div className={inline-flex items-center gap-2 px-3 py-1 rounded-full border ${getStatusColor(action.status)}}>
+                                {getStatusIcon(action.status)}
+                                {getStatusLabel(action.status)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <button
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                                onClick={() => startEdit(action)}
+                                title="Editar"
+                              >
+                                <Edit2 className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

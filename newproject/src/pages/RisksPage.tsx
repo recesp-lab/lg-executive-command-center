@@ -350,7 +350,7 @@ export default function RisksPage() {
                           <p className="text-xs text-muted-foreground font-semibold mb-1">
                             Probabilidade
                           </p>
-                          <p className={text-sm font-semibold ${probabilityConfig[risk.probability].color}}>
+                           <p   className={`text-sm font-semibold ${probabilityConfig[risk.probability].color}`} >
                             {probabilityConfig[risk.probability].label}
                           </p>
                         </div>
@@ -436,7 +436,7 @@ export default function RisksPage() {
                           return (
                             <td
                               key={probLevel}
-                              className={px-3 py-3 align-top border ${cellColor}}
+                              className={`px-3 py-3 align-top border ${cellColor}`}}
                             >
                               {cellRisks.length === 0 ? (
                                 <span className="text-xs text-muted-foreground">—</span>

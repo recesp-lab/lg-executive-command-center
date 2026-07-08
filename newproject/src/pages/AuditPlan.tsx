@@ -387,7 +387,7 @@ export default function AuditPlan() {
   const handleNotifyResponsibles = () => {
     const uniqueResponsibles = Array.from(new Set(auditActions.flatMap((a) => a.responsible)));
     toast.success('Notificação enviada', {
-      description: ${uniqueResponsibles.length} responsáveis notificados sobre o status atual do plano de ação.,
+      description: `${uniqueResponsibles.length} responsáveis notificados sobre o status atual do plano de ação.`,
     });
   };
 

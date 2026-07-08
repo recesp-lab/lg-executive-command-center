@@ -3,7 +3,7 @@ import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
-import { loadTeamMembers } from '../lib/teamMembersStore.ts';
+import { loadTeamMembers } from '../lib/teamMembersStore';
 
 interface AuditAction {
   id: string;

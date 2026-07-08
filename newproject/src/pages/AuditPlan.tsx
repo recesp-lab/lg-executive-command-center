@@ -2,7 +2,8 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { loadTeamMembers } from '@/lib/teamMembersStore';
+import { useEffect, useState } from 'react';
+import { loadTeamMembers } from '../lib/teamMembersStore';
 
 interface AuditAction {
   id: string;

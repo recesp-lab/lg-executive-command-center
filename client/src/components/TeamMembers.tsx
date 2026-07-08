@@ -282,14 +282,14 @@ export default function TeamMembers() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <input
-                        className={px-3 py-1 rounded-full text-xs font-semibold border-b border-transparent hover:border-border focus:border-primary focus:outline-none ${getDepartmentColor(member.department)}}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold border-b border-transparent hover:border-border focus:border-primary focus:outline-none ${getDepartmentColor(member.department)}`}
                         value={member.department}
                         onChange={(e) => updateMember(member.id, { department: e.target.value })}
                       />
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <select
-                        className={inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}}
+                         className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}`} ```[1](https://falabella-my.sharepoint.com/personal/rpereira_falabella_cl/Documents/Archivos%20de%20Microsoft%C2%A0Copilot%20Chat/TeamMembers%20%282%29.tsx)  ---  ### NÃO MEXA NESTE TRECHO  Ele já está correto:  ```tsx {`mailto:${member.email}`} ```[1](https://falabella-my.sharepoint.com/personal/rpereira_falabella_cl/Documents/Archivos%20de%20Microsoft%C2%A0Copilot%20Chat/TeamMembers%20%282%29.tsx)  ---  Depois disso:  ```bash git add . git commit -m "Fix TeamMembers" git push
                         value={member.organization}
                         onChange={(e) => updateMember(member.id, { organization: e.target.value as TeamMember['organization'] })}
                       >

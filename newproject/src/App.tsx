@@ -9,6 +9,7 @@ import WeeklyTracking from '@/pages/WeeklyTracking';
 import RisksPage from '@/pages/RisksPage';
 import AuditPlan from '@/pages/AuditPlan';
 import TeamPage from '@/pages/TeamPage';
+import OKRs from '@/pages/OKRs';
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/risks" component={RisksPage} />
       <Route path="/audit" component={AuditPlan} />
       <Route path="/team" component={TeamPage} />
+      <Route path="/okrs" component={OKRs} />
       <Route component={NotFound} />
     </Switch>
   );

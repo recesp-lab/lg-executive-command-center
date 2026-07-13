@@ -6,6 +6,12 @@ export interface Module {
   version?: string;
   status: ModuleStatus;
   comment: string;
+  // Campos opcionais - só usados se o ModulesDashboard.tsx passar a
+  // permitir editar datas por módulo. Enquanto isso não acontecer, ficam
+  // undefined e o módulo simplesmente não entra no cálculo de Aderência
+  // ao Cronograma (não quebra nada).
+  startDate?: string;
+  endDate?: string;
 }
 
 export const MODULES_STORAGE_KEY = 'lg-dashboard:modules';

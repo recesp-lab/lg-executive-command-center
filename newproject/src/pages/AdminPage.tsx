@@ -79,11 +79,26 @@ export default function AdminPage() {
             Exportar Snapshot
           </Button>
 
-          <input
-            type="file"
-            accept=".json"
-            onChange={importSnapshot}
-          />
+
+<label>
+  <input
+    type="file"
+    accept=".json"
+    style={{ display: 'none' }}
+    onChange={importSnapshot}
+    id="snapshot-upload"
+  />
+
+  <Button
+    onClick={() =>
+      document
+        .getElementById('snapshot-upload')
+        ?.click()
+    }
+  >
+    Importar Snapshot
+  </Button>
+</label>
 
           <Button variant="outline">
             Restaurar Backup

@@ -7,7 +7,7 @@ interface TeamMember {
   name: string;
   email: string;
   role: string;
-  organization: 'SODIMAC' | 'LG' | 'FALABELLA';
+  organization: 'SODIMAC' | 'LG' | 'FALABELLA' | 'RECRUT.AI'
   department: string;
 }
 

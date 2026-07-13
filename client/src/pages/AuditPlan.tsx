@@ -3,6 +3,7 @@ import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import { loadTeamMembers } from '@/data/teamData';
 
 interface AuditAction {
   id: string;
@@ -24,7 +25,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.1 Exposição de dados sensíveis (Backup Datamace)',
       startDate: '2026-06-15',
       endDate: '2026-06-22',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'completed',
     },
     {
@@ -33,7 +34,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.1 Exposição de dados sensíveis (Backup Datamace)',
       startDate: '2026-06-22',
       endDate: '2026-06-29',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'completed',
     },
     {
@@ -42,7 +43,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.1 Exposição de dados sensíveis (Backup Datamace)',
       startDate: '2026-06-29',
       endDate: '2026-07-06',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'in-progress',
     },
     {
@@ -51,7 +52,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.1 Exposição de dados sensíveis (Backup Datamace)',
       startDate: '2026-07-06',
       endDate: '2026-07-20',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'in-progress',
     },
     {
@@ -60,7 +61,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.1 Exposição de dados sensíveis (Backup Datamace)',
       startDate: '2026-07-20',
       endDate: '2026-08-17',
-      responsible: ['TI (Denis)', 'Audit (Dagmar)'],
+      responsible: ['Denis Soares Dias', 'Dagmar Orlando Monteiro Duarte'],
       status: 'planned',
     },
 
@@ -71,7 +72,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.2 Excesso de privilégios (Superusuários)',
       startDate: '2026-06-15',
       endDate: '2026-06-20',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'completed',
     },
     {
@@ -80,7 +81,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.2 Excesso de privilégios (Superusuários)',
       startDate: '2026-06-20',
       endDate: '2026-06-27',
-      responsible: ['RH (Silvia)'],
+      responsible: ['Silvia Melo Neves'],
       status: 'completed',
     },
     {
@@ -89,7 +90,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.2 Excesso de privilégios (Superusuários)',
       startDate: '2026-06-27',
       endDate: '2026-07-04',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'in-progress',
     },
     {
@@ -98,7 +99,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.2 Excesso de privilégios (Superusuários)',
       startDate: '2026-07-04',
       endDate: '2026-07-11',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -107,7 +108,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.2 Excesso de privilégios (Superusuários)',
       startDate: '2026-07-11',
       endDate: '2026-07-18',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -116,7 +117,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.2 Excesso de privilégios (Superusuários)',
       startDate: '2026-07-18',
       endDate: '2026-08-15',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
 
@@ -127,7 +128,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.3 Falta de segregação de funções (SoD)',
       startDate: '2026-07-06',
       endDate: '2026-07-13',
-      responsible: ['RH (Silvia)'],
+      responsible: ['Silvia Melo Neves'],
       status: 'planned',
     },
     {
@@ -136,7 +137,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.3 Falta de segregação de funções (SoD)',
       startDate: '2026-07-13',
       endDate: '2026-07-20',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -145,7 +146,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.3 Falta de segregação de funções (SoD)',
       startDate: '2026-07-20',
       endDate: '2026-07-27',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -154,7 +155,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.3 Falta de segregação de funções (SoD)',
       startDate: '2026-07-27',
       endDate: '2026-08-03',
-      responsible: ['TI (Denis)'],
+      responsible: ['Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -163,7 +164,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.3 Falta de segregação de funções (SoD)',
       startDate: '2026-08-03',
       endDate: '2026-08-10',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
 
@@ -174,7 +175,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.4 Acesso fora de ambiente seguro',
       startDate: '2026-06-29',
       endDate: '2026-07-06',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'completed',
     },
     {
@@ -183,7 +184,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.4 Acesso fora de ambiente seguro',
       startDate: '2026-07-06',
       endDate: '2026-07-13',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'in-progress',
     },
     {
@@ -192,7 +193,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.4 Acesso fora de ambiente seguro',
       startDate: '2026-07-13',
       endDate: '2026-07-27',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -201,7 +202,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.4 Acesso fora de ambiente seguro',
       startDate: '2026-07-27',
       endDate: '2026-08-10',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -210,7 +211,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '3.4 Acesso fora de ambiente seguro',
       startDate: '2026-08-10',
       endDate: '2026-08-17',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
 
@@ -221,7 +222,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '4. Ações estruturais complementares',
       startDate: '2026-07-06',
       endDate: '2026-07-20',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -230,7 +231,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '4. Ações estruturais complementares',
       startDate: '2026-07-20',
       endDate: '2026-08-03',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -239,7 +240,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '4. Ações estruturais complementares',
       startDate: '2026-08-03',
       endDate: '2026-08-17',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -248,7 +249,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '4. Ações estruturais complementares',
       startDate: '2026-08-03',
       endDate: '2026-08-17',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
     {
@@ -257,7 +258,7 @@ const defaultAuditActions: AuditAction[] = [
       section: '4. Ações estruturais complementares',
       startDate: '2026-08-10',
       endDate: '2026-08-17',
-      responsible: ['RH (Silvia)', 'TI (Denis)'],
+      responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
 ];
@@ -283,9 +284,10 @@ export default function AuditPlan() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<AuditAction | null>(null);
 
-const teamMembers = JSON.parse(
-  localStorage.getItem('lg-dashboard:team-members') || '[]'
-);
+  // Antes: JSON.parse(localStorage.getItem(...) || '[]') direto, o que
+  // deixava o seletor de responsáveis vazio no primeiro acesso de um
+  // navegador novo. Agora usa o loader com fallback garantido.
+  const teamMembers = loadTeamMembers();
   
   const startEdit = (action: AuditAction) => {
     setEditingId(action.id);
@@ -586,7 +588,7 @@ const teamMembers = JSON.parse(
           <p className="text-sm text-blue-900">
             <strong>Nota:</strong> Este plano de ação é crítico para a conformidade de segurança do sistema de RH.
             Todas as ações devem ser concluídas dentro dos prazos estabelecidos.
-            A auditoria periódica será realizada pela equipe de Auditoria (Dagmar).
+            A auditoria periódica será realizada pela equipe de Auditoria (Dagmar Orlando Monteiro Duarte).
           </p>
         </div>
 

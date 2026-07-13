@@ -4,6 +4,7 @@ import { AlertCircle, Trash2, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { getRiskMetrics, loadRisks, RISKS_STORAGE_KEY, type Risk } from '@/data/risksData';
+import { loadTeamMembers } from '@/data/teamData';
 
 const STORAGE_KEY = RISKS_STORAGE_KEY;
 
@@ -25,10 +26,11 @@ export default function RisksPage() {
   const [newRisk, setNewRisk] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Risk | null>(null);
-  
-const teamMembers = JSON.parse(
-  localStorage.getItem('lg-dashboard:team-members') || '[]'
-);
+
+  // Antes: JSON.parse(localStorage.getItem(...) || '[]') direto, o que
+  // deixava o dropdown de responsável vazio no primeiro acesso de um
+  // navegador novo. Agora usa o loader com fallback garantido.
+  const teamMembers = loadTeamMembers();
 
   useEffect(() => {
     try {

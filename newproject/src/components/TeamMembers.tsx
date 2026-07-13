@@ -87,13 +87,14 @@ export default function TeamMembers() {
     };
     return colors[dept] || 'bg-indigo-100 text-indigo-800';
   };
-
-  const stats = {
-    total: teamMembers.length,
-    sodimac: teamMembers.filter((m) => m.organization === 'SODIMAC').length,
-    lg: teamMembers.filter((m) => m.organization === 'LG').length,
-    falabella: teamMembers.filter((m) => m.organization === 'FALABELLA').length,
-  };
+  
+const stats = {
+  total: teamMembers.length,
+  sodimac: teamMembers.filter((m) => m.organization === 'SODIMAC').length,
+  lg: teamMembers.filter((m) => m.organization === 'LG').length,
+  falabella: teamMembers.filter((m) => m.organization === 'FALABELLA').length,
+  recrutai: teamMembers.filter((m) => m.organization === 'RECRUT.AI').length,
+};
 
   const departments = Array.from(new Set(teamMembers.map((m) => m.department))).sort();
 
@@ -288,16 +289,21 @@ export default function TeamMembers() {
                         onChange={(e) => updateMember(member.id, { department: e.target.value })}
                       />
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <select
-                         className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}`}
-                        value={member.organization}
-                        onChange={(e) => updateMember(member.id, { organization: e.target.value as TeamMember['organization'] })}
-                      >
-                        <option value="SODIMAC">SODIMAC</option>
-                        <option value="LG">LG</option>
-                        <option value="FALABELLA">FALABELLA</option>
-                      </select>
+                    <td className="px-6 py-4 text-sm">                    
+<select
+  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}`}
+  value={member.organization}
+  onChange={(e) =>
+    updateMember(member.id, {
+      organization: e.target.value as TeamMember['organization'],
+    })
+  }
+>
+  <option value="SODIMAC">SODIMAC</option>
+  <option value="LG">LG</option>
+  <option value="FALABELLA">FALABELLA</option>
+  <option value="RECRUT.AI">RECRUT.AI</option>
+</select>
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <button
@@ -321,7 +327,7 @@ export default function TeamMembers() {
         <p className="text-sm text-blue-900">
           <strong>Total de Membros:</strong> {stats.total} pessoas
           <br />
-          <strong>Distribuição:</strong> SODIMAC ({stats.sodimac}), LG ({stats.lg}), Falabella ({stats.falabella})
+          <strong>Distribuição:</strong> SODIMAC ({stats.sodimac}), LG ({stats.lg}), Falabella ({stats.falabella}), RECRUT.AI ({stats.recrutai})
           <br />
           <strong>Departamentos:</strong> {departments.join(', ')}
         </p>

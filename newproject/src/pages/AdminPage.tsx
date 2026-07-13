@@ -14,6 +14,37 @@ const exportSnapshot = () => {
       backup[key] = localStorage.getItem(key);
     }
   }
+  
+const importSnapshot = (
+  event: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const backup = JSON.parse(
+      String(reader.result)
+    );
+
+    Object.entries(backup).forEach(
+      ([key, value]) => {
+        localStorage.setItem(
+          key,
+          String(value)
+        );
+      }
+    );
+
+    alert('Backup restaurado com sucesso.');
+
+    location.reload();
+  };
+
+  reader.readAsText(file);
+};
 
   const blob = new Blob(
     [JSON.stringify(backup, null, 2)],
@@ -48,9 +79,18 @@ const exportSnapshot = () => {
   Exportar Snapshot
 </Button>
 
-          <Button>
-            Importar Snapshot
-          </Button>
+ <label>
+  <input
+    type="file"
+    accept=".json"
+    hidden
+    onChange={importSnapshot}
+  />
+
+  <Button asChild>
+    <span>Importar Snapshot</span>
+  </Button>
+</label>
 
           <Button variant="outline">
             Restaurar Backup

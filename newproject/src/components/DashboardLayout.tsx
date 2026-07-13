@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { BarChart3, AlertCircle, Calendar, ClipboardList, Users } from 'lucide-react';
+import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team';
+  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs';
 }
 
 export default function DashboardLayout({ children, currentPage = 'dashboard' }: DashboardLayoutProps) {
@@ -14,6 +14,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
     { id: 'weekly', label: 'Semanal', icon: Calendar, href: '/weekly' },
     { id: 'audit', label: 'Auditoria', icon: ClipboardList, href: '/audit' },
     { id: 'team', label: 'Equipe', icon: Users, href: '/team' },
+    { id: 'okrs', label: 'OKRs & KPIs', icon: Target, href: '/okrs' },
   ];
 
   return (

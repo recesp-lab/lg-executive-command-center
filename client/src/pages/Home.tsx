@@ -11,7 +11,7 @@ import { useLocation } from 'wouter';
 
 // Data da última revisão de conteúdo do dashboard.
 // Atualize esta constante sempre que os números/dados forem revisados.
-const LAST_UPDATED = '06/07/2026';
+const lastUpdate = localStorage.getItem('lg-dashboard:last-update');
 
 export default function Home() {
   const [, navigate] = useLocation();

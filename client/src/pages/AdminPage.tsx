@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 export default function AdminPage() {
   return (
-    <DashboardLayout currentPage="admin">
+    <DashboardLayout currentPage="dashboard">
       <div className="p-8">
         <h1 className="text-4xl font-bold mb-6">
           Administração

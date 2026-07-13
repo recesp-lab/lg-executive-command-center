@@ -180,6 +180,7 @@ export default function TeamMembers() {
               <option value="SODIMAC">SODIMAC</option>
               <option value="LG">LG</option>
               <option value="FALABELLA">FALABELLA</option>
+              <option value="RECRUT.AI">RECRUT.AI</option>
             </select>
           </div>
           <div className="flex justify-end gap-3">

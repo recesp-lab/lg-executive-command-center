@@ -4,6 +4,8 @@ import ModulesDashboard from '@/components/ModulesDashboard';
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
+import { loadTeamMembers } from '@/data/teamData';
+import { loadModules } from '@/data/modulesData';
 import { useLocation } from 'wouter';
 
 
@@ -17,14 +19,14 @@ export default function Home() {
   // Lê os mesmos riscos (incluindo edições salvas) usados na página de
   // Riscos, então este número nunca fica dessincronizado.
   const riskMetrics = getRiskMetrics(loadRisks());
-const teamMembers = JSON.parse(
-  localStorage.getItem('lg-dashboard:team-members') || '[]'
-);
 
-const modules = JSON.parse(
-  localStorage.getItem('lg-dashboard:modules') || '[]'
-);
-  
+  // Antes: JSON.parse(localStorage.getItem(...) || '[]') direto, o que
+  // zerava equipe e módulos no primeiro acesso de um navegador novo (antes
+  // de alguém visitar as páginas Equipe/Dashboard e gravar algo no
+  // localStorage). Agora os dois usam um loader com fallback garantido.
+  const teamMembers = loadTeamMembers();
+  const modules = loadModules();
+
 const completedModules = modules.filter(
   (m: any) => m.status === 'completed'
 ).length;
@@ -107,12 +109,7 @@ const daysToDeadline = Math.max(
       <div className="p-8">
         {/* Hero Section */}
         <div className="mb-8">
-          <div className="relative rounded-lg overflow-hidden mb-4">
-            <img
-              src="/manus-storage/hero-dashboard_5313de43.png"
-              alt="Hero Dashboard"
-              className="w-full h-48 object-cover"
-            />
+          <div className="relative rounded-lg overflow-hidden mb-4 h-48 bg-gradient-to-br from-blue-900 to-blue-700">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-700/60 flex items-center">
               <div className="px-8">
                 <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>

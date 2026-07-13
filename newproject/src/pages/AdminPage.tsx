@@ -3,70 +3,70 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 
 export default function AdminPage() {
-  
-const exportSnapshot = () => {
-  const backup: Record<string, string | null> = {};
+  const exportSnapshot = () => {
+    const backup: Record<string, string | null> = {};
 
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
 
-    if (key) {
-      backup[key] = localStorage.getItem(key);
+      if (key) {
+        backup[key] = localStorage.getItem(key);
+      }
     }
-  }
-  
-const importSnapshot = (
-  event: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = event.target.files?.[0];
 
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    const backup = JSON.parse(
-      String(reader.result)
-    );
-
-    Object.entries(backup).forEach(
-      ([key, value]) => {
-        localStorage.setItem(
-          key,
-          String(value)
-        );
+    const blob = new Blob(
+      [JSON.stringify(backup, null, 2)],
+      {
+        type: 'application/json',
       }
     );
 
-    alert('Backup restaurado com sucesso.');
+    const url = URL.createObjectURL(blob);
 
-    location.reload();
+    const a = document.createElement('a');
+
+    a.href = url;
+
+    a.download = `snapshot-${new Date()
+      .toISOString()
+      .slice(0, 10)}.json`;
+
+    a.click();
+
+    URL.revokeObjectURL(url);
   };
 
-  reader.readAsText(file);
-};
+  const importSnapshot = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
 
-  const blob = new Blob(
-    [JSON.stringify(backup, null, 2)],
-    {
-      type: 'application/json',
-    }
-  );
+    if (!file) return;
 
-  const url = URL.createObjectURL(blob);
+    const reader = new FileReader();
 
-  const a = document.createElement('a');
+    reader.onload = () => {
+      const backup = JSON.parse(
+        String(reader.result)
+      );
 
-  a.href = url;
+      Object.entries(backup).forEach(
+        ([key, value]) => {
+          localStorage.setItem(
+            key,
+            String(value)
+          );
+        }
+      );
 
-  a.download = `snapshot-${new Date()
-    .toISOString()
-    .slice(0, 10)}.json`;
+      alert('Backup restaurado com sucesso.');
 
-  a.click();
+      location.reload();
+    };
 
-  URL.revokeObjectURL(url);
-};
+    reader.readAsText(file);
+  };
+
   return (
     <DashboardLayout currentPage="admin">
       <div className="p-8">
@@ -75,22 +75,15 @@ const importSnapshot = (
         </h1>
 
         <div className="grid gap-4">
-<Button onClick={exportSnapshot}>
-  Exportar Snapshot
-</Button>
+          <Button onClick={exportSnapshot}>
+            Exportar Snapshot
+          </Button>
 
- <label>
-  <input
-    type="file"
-    accept=".json"
-    hidden
-    onChange={importSnapshot}
-  />
-
-  <Button asChild>
-    <span>Importar Snapshot</span>
-  </Button>
-</label>
+          <input
+            type="file"
+            accept=".json"
+            onChange={importSnapshot}
+          />
 
           <Button variant="outline">
             Restaurar Backup

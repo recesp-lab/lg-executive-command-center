@@ -123,7 +123,7 @@ const daysToDeadline = Math.max(
           </div>
 
           <p className="text-xs text-muted-foreground mb-6 text-right">
-            Última atualização de dados: {LAST_UPDATED}
+            Última atualização de dados: {lastUpdate}
           </p>
 
 <div className="mb-6">

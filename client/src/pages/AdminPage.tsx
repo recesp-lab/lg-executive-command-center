@@ -3,6 +3,39 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 
 export default function AdminPage() {
+  
+const exportSnapshot = () => {
+  const backup: Record<string, string | null> = {};
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+
+    if (key) {
+      backup[key] = localStorage.getItem(key);
+    }
+  }
+
+  const blob = new Blob(
+    [JSON.stringify(backup, null, 2)],
+    {
+      type: 'application/json',
+    }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+
+  a.href = url;
+
+  a.download = `snapshot-${new Date()
+    .toISOString()
+    .slice(0, 10)}.json`;
+
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
   return (
     <DashboardLayout currentPage="dashboard">
       <div className="p-8">
@@ -11,9 +44,9 @@ export default function AdminPage() {
         </h1>
 
         <div className="grid gap-4">
-          <Button>
-            Exportar Snapshot
-          </Button>
+<Button onClick={exportSnapshot}>
+  Exportar Snapshot
+</Button>
 
           <Button>
             Importar Snapshot

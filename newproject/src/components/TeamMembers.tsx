@@ -87,7 +87,7 @@ export default function TeamMembers() {
     };
     return colors[dept] || 'bg-indigo-100 text-indigo-800';
   };
-  
+
 const stats = {
   total: teamMembers.length,
   sodimac: teamMembers.filter((m) => m.organization === 'SODIMAC').length,
@@ -139,7 +139,7 @@ const stats = {
           </Button>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Total de {stats.total} membros distribuídos entre SODIMAC, LG e Falabella
+          Total de {stats.total} membros distribuídos entre SODIMAC, LG, Falabella e RECRUT.AI
         </p>
         <div className="h-1 w-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded"></div>
       </div>
@@ -194,7 +194,7 @@ const stats = {
       )}
 
       {/* Organization Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+     <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <div className="bg-white rounded-lg border border-border shadow-sm p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-2">Total de Membros</p>
           <p className="text-3xl font-bold text-foreground">{stats.total}</p>
@@ -211,6 +211,12 @@ const stats = {
           <p className="text-xs text-orange-700 font-semibold mb-2">FALABELLA</p>
           <p className="text-3xl font-bold text-orange-700">{stats.falabella}</p>
         </div>
+<div className="bg-emerald-50 rounded-lg border border-emerald-200 shadow-sm p-4">
+  <p className="text-xs text-emerald-700 font-semibold mb-2">RECRUT.AI</p>
+  <p className="text-3xl font-bold text-emerald-700">
+    {stats.recrutai}
+  </p>
+</div>
       </div>
 
       {/* Departments Tabs - clique para filtrar a tabela abaixo */}

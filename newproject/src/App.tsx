@@ -25,6 +25,7 @@ function Router() {
   );
 }
 
+bootstrapProductionData();
 function App() {
   return (
     <ErrorBoundary>

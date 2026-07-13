@@ -122,9 +122,15 @@ const daysToDeadline = Math.max(
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground mb-6 text-right">
-            Última atualização de dados: {lastUpdate}
-          </p>
+<div className="text-right">
+  <p className="text-xs text-muted-foreground">
+    Última atualização de dados: {lastUpdate}
+  </p>
+
+  <p className="text-xs text-muted-foreground">
+    Criado por Renato Pereira
+  </p>
+</div>
 
 <div className="mb-6">
   <div

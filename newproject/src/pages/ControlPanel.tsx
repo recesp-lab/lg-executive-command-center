@@ -32,7 +32,7 @@ const integracoesImplementadasCalculado = 85;
 
 const testesHomologadosCalculado = 92;
 
-const incidentesCriticosCalculado = 2;
+let incidentesCriticosCalculado = 2;
 
 const riscosScore =
   incidentesCriticosCalculado === 0

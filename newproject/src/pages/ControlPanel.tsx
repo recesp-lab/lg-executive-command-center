@@ -248,3 +248,5 @@ min="0"
 </div>
 </div>
 </DashboardLayout>
+  );
+}

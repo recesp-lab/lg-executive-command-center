@@ -55,12 +55,13 @@ const progressoProjetoCalculado =
       return '🔴';
     }
 
-    const ratio = current / target;
+    
+const ratio = current / target;
 
-    if (ratio >= 0.9) return '🟢';
-    if (ratio >= 0.7) return '🟡';
+if (ratio >= 0.8) return '🟢';
+if (ratio >= 0.5) return '🟡';
 
-    return '🔴';
+return '🔴';
   };
 
   return (

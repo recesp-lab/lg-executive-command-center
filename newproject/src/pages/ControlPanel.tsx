@@ -11,6 +11,22 @@ const TARGETS_STORAGE =
   'lg-dashboard:control-panel-targets';
 
 const [targets, setTargets] = React.useState(() => {
+const METRICS_STORAGE =
+  'lg-dashboard:control-panel-metrics';
+
+const [manualMetrics, setManualMetrics] =
+  React.useState(() => {
+    const saved = localStorage.getItem(
+      METRICS_STORAGE
+    );
+
+    return saved
+      ? JSON.parse(saved)
+      : {
+          integracoesImplementadas: 85,
+          testesHomologados: 92,
+        };
+  });
   const saved = localStorage.getItem(
     TARGETS_STORAGE
   );
@@ -46,9 +62,12 @@ const progressoProjetoCalculado =
 const goLiveModulosCalculado =
   progressoProjetoCalculado;
 
-const integracoesImplementadasCalculado = 85;
 
-const testesHomologadosCalculado = 92;
+const integracoesImplementadasCalculado =
+  manualMetrics.integracoesImplementadas;
+
+const testesHomologadosCalculado =
+  manualMetrics.testesHomologados;
 
  const incidentesCriticosCalculado =   riskMetrics.critical;
 

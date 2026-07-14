@@ -249,10 +249,43 @@ min="0"
   />
 </td>
 
-                  <td className="text-center p-4">
-                    {item.current}
-                  </td>
+<td className="text-center p-4">
+  {item.name === 'Integrações Implementadas' ||
+  item.name === 'Testes Homologados' ? (
+    <input
+      type="number"
+      min="0"
+      max="100"
+      value={item.current}
+      className="w-20 text-center border rounded px-2 py-1"
+      onChange={(e) => {
+        const value = Number(e.target.value);
 
+        if (
+          item.name ===
+          'Integrações Implementadas'
+        ) {
+          setManualMetrics((prev: any) => ({
+            ...prev,
+            integracoesImplementadas: value,
+          }));
+        }
+
+        if (
+          item.name ===
+          'Testes Homologados'
+        ) {
+          setManualMetrics((prev: any) => ({
+            ...prev,
+            testesHomologados: value,
+          }));
+        }
+      }}
+    />
+  ) : (
+    item.current
+  )}
+</td>
                   <td className="text-center p-4 text-xl">
                     {getStatus(
                       item.target,

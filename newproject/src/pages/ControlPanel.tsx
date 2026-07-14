@@ -349,6 +349,19 @@ min="0"
 >
   Salvar Fechamento Mensal
 </button>
+  
+<div className="mt-6">
+  <h3 className="text-lg font-semibold mb-3">
+    Histórico Mensal
+  </h3>
+
+  <pre className="text-xs bg-gray-100 p-4 rounded overflow-auto">
+    {localStorage.getItem(
+      'lg-dashboard:control-panel-history'
+    )}
+  </pre>
+</div>
+
 </div>
 
 </div>

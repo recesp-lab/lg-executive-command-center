@@ -1,12 +1,30 @@
 
 import DashboardLayout from '@/components/DashboardLayout';
-import { controlPanelTargets } from '@/data/controlPanelMetrics';
+import React from 'react';
 import {
   loadRisks,
   getRiskMetrics,
 } from '@/data/risksData';
 
 export default function ControlPanel() {
+const TARGETS_STORAGE =
+  'lg-dashboard:control-panel-targets';
+
+const [targets, setTargets] = React.useState(() => {
+  const saved = localStorage.getItem(
+    TARGETS_STORAGE
+  );
+
+  return saved
+    ? JSON.parse(saved)
+    : {
+        healthScore: 100,
+        goLiveModulos: 100,
+        integracoesImplementadas: 100,
+        testesHomologados: 100,
+        incidentesCriticos: 0,
+      };
+});
 const modules = JSON.parse(
   localStorage.getItem('lg-dashboard:modules') || '[]'
 );
@@ -48,30 +66,37 @@ const healthScoreCalculado = Math.round(
   riscosScore * 0.2
 );
 
+React.useEffect(() => {
+  localStorage.setItem(
+    TARGETS_STORAGE,
+    JSON.stringify(targets)
+  );
+}, [targets]);
+
   const indicators = [
 {
   name: 'Health Score do Programa',
-  target: 100,
+  target: targets.healthScore,
   current: healthScoreCalculado,
 },
 {
   name: 'Go-Live dos Módulos',
-  target: controlPanelTargets.goLiveModulos,
+  target: targets.goLiveModulos,
   current: progressoProjetoCalculado,
 },
 {
   name: 'Integrações Implementadas',
-  target: controlPanelTargets.integracoesImplementadas,
+  target: targets.integracoesImplementadas,
   current: integracoesImplementadasCalculado,
 },
 {
   name: 'Testes Homologados',
-  target: controlPanelTargets.testesHomologados,
+  target: targets.testesHomologados,
   current: testesHomologadosCalculado,
 },
 {
   name: 'Incidentes Críticos',
-  target: controlPanelTargets.incidentesCriticos,
+  target: targets.incidentesCriticos,
   current: riskMetrics.critical,
 },
   ];
@@ -143,9 +168,53 @@ return '🔴';
                     {item.name}
                   </td>
 
-                  <td className="text-center p-4">
-                    {item.target}
-                  </td>
+<td className="text-center p-4">
+  <input
+    type="number"
+    value={item.target}
+    className="w-20 text-center border rounded px-2 py-1"
+    onChange={(e) => {
+      const value = Number(e.target.value);
+
+      switch (item.name) {
+        case 'Health Score do Programa':
+          setTargets((prev: any) => ({
+            ...prev,
+            healthScore: value,
+          }));
+          break;
+
+        case 'Go-Live dos Módulos':
+          setTargets((prev: any) => ({
+            ...prev,
+            goLiveModulos: value,
+          }));
+          break;
+
+        case 'Integrações Implementadas':
+          setTargets((prev: any) => ({
+            ...prev,
+            integracoesImplementadas: value,
+          }));
+          break;
+
+        case 'Testes Homologados':
+          setTargets((prev: any) => ({
+            ...prev,
+            testesHomologados: value,
+          }));
+          break;
+
+        case 'Incidentes Críticos':
+          setTargets((prev: any) => ({
+            ...prev,
+            incidentesCriticos: value,
+          }));
+          break;
+      }
+    }}
+  />
+</td>
 
                   <td className="text-center p-4">
                     {item.current}

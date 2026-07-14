@@ -11,6 +11,7 @@ import AuditPlan from '@/pages/AuditPlan';
 import TeamPage from '@/pages/TeamPage';
 import OKRs from '@/pages/OKRs';
 import AdminPage from '@/pages/AdminPage';
+import ControlPanel from '@/pages/ControlPanel';
 
 function Router() {
   return (
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/audit" component={AuditPlan} />
       <Route path="/team" component={TeamPage} />
       <Route path="/okrs" component={OKRs} />
+      <Route path="/control-panel" component={ControlPanel} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>

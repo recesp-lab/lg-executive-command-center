@@ -29,6 +29,8 @@ export default function ControlPanel() {
 
   const METRICS_STORAGE =
     'lg-dashboard:control-panel-metrics';
+const HISTORY_STORAGE =
+  'lg-dashboard:control-panel-history';
 
   const [manualMetrics, setManualMetrics] =
     React.useState(() => {
@@ -128,6 +130,48 @@ React.useEffect(() => {
   current: riskMetrics.critical,
 },
   ];
+
+const saveMonthlySnapshot = () => {
+  const currentHistory = JSON.parse(
+    localStorage.getItem(HISTORY_STORAGE) || '[]'
+  );
+
+  const snapshot = {
+    mes: new Date().toLocaleDateString(
+      'pt-BR',
+      {
+        month: '2-digit',
+        year: 'numeric',
+      }
+    ),
+
+    healthScore: healthScoreCalculado,
+
+    goLive: goLiveModulosCalculado,
+
+    integracoes:
+      integracoesImplementadasCalculado,
+
+    testes:
+      testesHomologadosCalculado,
+
+    incidentes:
+      incidentesCriticosCalculado,
+
+    createdAt: new Date().toISOString(),
+  };
+
+  currentHistory.push(snapshot);
+
+  localStorage.setItem(
+    HISTORY_STORAGE,
+    JSON.stringify(currentHistory)
+  );
+
+  alert(
+    'Fechamento mensal salvo com sucesso.'
+  );
+};
 
   const getStatus = (
     target: number,
@@ -299,11 +343,12 @@ min="0"
 </table>
 
 <div className="border-t p-6 bg-gray-50">
-  <button
-    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-800"
-  >
-    Salvar Fechamento Mensal
-  </button>
+<button
+  onClick={saveMonthlySnapshot}
+  className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-800"
+>
+  Salvar Fechamento Mensal
+</button>
 </div>
 
 </div>

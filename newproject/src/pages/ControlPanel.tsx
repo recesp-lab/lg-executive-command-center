@@ -1,10 +1,18 @@
 
 import DashboardLayout from '@/components/DashboardLayout';
 import { controlPanelTargets } from '@/data/controlPanelMetrics';
+import {
+  loadRisks,
+  getRiskMetrics,
+} from '@/data/risksData';
 
 export default function ControlPanel() {
 const modules = JSON.parse(
   localStorage.getItem('lg-dashboard:modules') || '[]'
+);
+
+const riskMetrics = getRiskMetrics(
+  loadRisks()
 );
 
 const completedModules = modules.filter(
@@ -23,11 +31,11 @@ const progressoProjetoCalculado =
   target: controlPanelTargets.progressoProjeto,
   current: progressoProjetoCalculado,
 },
-    {
-      name: 'Go-Live dos Módulos',
-      target: 100,
-      current: 75,
-    },
+{
+  name: 'Go-Live dos Módulos',
+  target: controlPanelTargets.goLiveModulos,
+  current: progressoProjetoCalculado,
+},
     {
       name: 'Integrações Implementadas',
       target: 100,
@@ -38,11 +46,11 @@ const progressoProjetoCalculado =
       target: 100,
       current: 92,
     },
-    {
-      name: 'Incidentes Críticos',
-      target: 0,
-      current: 3,
-    },
+{
+  name: 'Incidentes Críticos',
+  target: controlPanelTargets.incidentesCriticos,
+  current: riskMetrics.critical,
+},
   ];
 
   const getStatus = (

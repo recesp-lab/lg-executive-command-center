@@ -4,7 +4,7 @@ import { Link } from 'wouter';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin';
+  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel';
 }
 
 export default function DashboardLayout({ children, currentPage = 'dashboard' }: DashboardLayoutProps) {
@@ -16,6 +16,12 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
     { id: 'team', label: 'Equipe', icon: Users, href: '/team' },
     { id: 'admin', label: 'Administração', icon: Target, href: '/admin' },
     { id: 'okrs', label: 'OKRs & KPIs', icon: Target, href: '/okrs' },
+{
+  id: 'control-panel',
+  label: 'Control Panel',
+  icon: Target,
+  href: '/control-panel',
+},
   ];
 
   return (

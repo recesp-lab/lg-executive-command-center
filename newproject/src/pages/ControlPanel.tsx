@@ -1,13 +1,28 @@
 
 import DashboardLayout from '@/components/DashboardLayout';
+import { controlPanelTargets } from '@/data/controlPanelMetrics';
 
 export default function ControlPanel() {
+const modules = JSON.parse(
+  localStorage.getItem('lg-dashboard:modules') || '[]'
+);
+
+const completedModules = modules.filter(
+  (m: any) => m.status === 'completed'
+).length;
+
+const progressoProjetoCalculado =
+  modules.length > 0
+    ? Math.round(
+        (completedModules / modules.length) * 100
+      )
+    : 0;
   const indicators = [
-    {
-      name: 'Progresso do Projeto',
-      target: 100,
-      current: 80,
-    },
+{
+  name: 'Progresso do Projeto',
+  target: controlPanelTargets.progressoProjeto,
+  current: progressoProjetoCalculado,
+},
     {
       name: 'Go-Live dos Módulos',
       target: 100,

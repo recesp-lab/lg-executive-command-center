@@ -134,6 +134,9 @@ return '🔴';
         </h1>
 
         <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+<p className="text-sm text-muted-foreground mt-2">
+  Metas são configuráveis. Valores atuais e status são calculados automaticamente.
+</p>
           <div className="p-6 border-b">
             <h2 className="text-xl font-bold">
               Status Geral do Programa
@@ -171,6 +174,8 @@ return '🔴';
 <td className="text-center p-4">
   <input
     type="number"
+min="0"
+  max="100"
     value={item.target}
     className="w-20 text-center border rounded px-2 py-1"
     onChange={(e) => {
@@ -228,10 +233,18 @@ return '🔴';
                   </td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-}
+            
+</tbody>
+</table>
+
+<div className="border-t p-6 bg-gray-50">
+  <button
+    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-800"
+  >
+    Salvar Fechamento Mensal
+  </button>
+</div>
+
+</div>
+</div>
+</DashboardLayout>

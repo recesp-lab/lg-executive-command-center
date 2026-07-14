@@ -32,7 +32,7 @@ const integracoesImplementadasCalculado = 85;
 
 const testesHomologadosCalculado = 92;
 
-let incidentesCriticosCalculado = 2;
+ const incidentesCriticosCalculado =   riskMetrics.critical;
 
 const riscosScore =
   incidentesCriticosCalculado === 0
@@ -59,16 +59,16 @@ const healthScoreCalculado = Math.round(
   target: controlPanelTargets.goLiveModulos,
   current: progressoProjetoCalculado,
 },
-    {
-      name: 'Integrações Implementadas',
-      target: 100,
-      current: 85,
-    },
-    {
-      name: 'Testes Homologados',
-      target: 100,
-      current: 92,
-    },
+{
+  name: 'Integrações Implementadas',
+  target: controlPanelTargets.integracoesImplementadas,
+  current: integracoesImplementadasCalculado,
+},
+{
+  name: 'Testes Homologados',
+  target: controlPanelTargets.testesHomologados,
+  current: testesHomologadosCalculado,
+},
 {
   name: 'Incidentes Críticos',
   target: controlPanelTargets.incidentesCriticos,

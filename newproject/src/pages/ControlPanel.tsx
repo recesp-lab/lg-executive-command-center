@@ -8,6 +8,7 @@ import {
 
 export default function ControlPanel() {
 
+
 const TARGETS_STORAGE =
   'lg-dashboard:control-panel-targets';
 
@@ -18,6 +19,31 @@ const [targets, setTargets] = React.useState(() => {
 
   return saved
     ? JSON.parse(saved)
+    : {
+        healthScore: 100,
+        goLiveModulos: 100,
+        integracoesImplementadas: 100,
+        testesHomologados: 100,
+        incidentesCriticos: 0,
+      };
+});
+
+const METRICS_STORAGE =
+  'lg-dashboard:control-panel-metrics';
+
+const [manualMetrics, setManualMetrics] =
+  React.useState(() => {
+    const saved = localStorage.getItem(
+      METRICS_STORAGE
+    );
+
+    return saved
+      ? JSON.parse(saved)
+      : {
+          integracoesImplementadas: 85,
+          testesHomologados: 92,
+        };
+  });
     : {
         healthScore: 100,
         goLiveModulos: 100,

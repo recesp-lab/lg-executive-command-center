@@ -25,11 +25,34 @@ const progressoProjetoCalculado =
         (completedModules / modules.length) * 100
       )
     : 0;
+const goLiveModulosCalculado =
+  progressoProjetoCalculado;
+
+const integracoesImplementadasCalculado = 85;
+
+const testesHomologadosCalculado = 92;
+
+const incidentesCriticosCalculado = 2;
+
+const riscosScore =
+  incidentesCriticosCalculado === 0
+    ? 100
+    : incidentesCriticosCalculado <= 3
+    ? 80
+    : 40;
+
+const healthScoreCalculado = Math.round(
+  goLiveModulosCalculado * 0.4 +
+  integracoesImplementadasCalculado * 0.2 +
+  testesHomologadosCalculado * 0.2 +
+  riscosScore * 0.2
+);
+
   const indicators = [
 {
-  name: 'Progresso do Projeto',
-  target: controlPanelTargets.progressoProjeto,
-  current: progressoProjetoCalculado,
+  name: 'Health Score do Programa',
+  target: 100,
+  current: healthScoreCalculado,
 },
 {
   name: 'Go-Live dos Módulos',

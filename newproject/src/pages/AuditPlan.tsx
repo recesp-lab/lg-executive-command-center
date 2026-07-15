@@ -1,4 +1,5 @@
 import DashboardLayout from '@/components/DashboardLayout';
+import ProjectHealthBanner from '@/components/ProjectHealthBanner';
 import { AlertCircle, CheckCircle2, Clock, Users, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -288,7 +289,7 @@ export default function AuditPlan() {
   // deixava o seletor de responsáveis vazio no primeiro acesso de um
   // navegador novo. Agora usa o loader com fallback garantido.
   const teamMembers = loadTeamMembers();
-  
+
   const startEdit = (action: AuditAction) => {
     setEditingId(action.id);
     setEditDraft({ ...action });
@@ -414,6 +415,11 @@ export default function AuditPlan() {
           <div className="h-1 w-32 bg-gradient-to-r from-red-500 to-orange-500 rounded"></div>
         </div>
 
+        {/* Status Executivo - mesma fonte usada na Home e em Riscos */}
+        <div className="mb-8">
+          <ProjectHealthBanner />
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-5 gap-4 mb-8">
           <div className="bg-white rounded-lg border border-border shadow-sm p-4">
@@ -484,30 +490,43 @@ export default function AuditPlan() {
                                   onChange={(e) => setEditDraft({ ...editDraft, endDate: e.target.value })}
                                 />
                               </td>
-                              <td className="px-6 py-3 align-top">                            
-<select
-  multiple
-  className="w-full p-1.5 border border-border rounded text-sm h-32"
-  value={editDraft.responsible}
-  onChange={(e) =>
-    setEditDraft({
-      ...editDraft,
-      responsible: Array.from(
-        e.target.selectedOptions,
-        (option) => option.value
-      ),
-    })
-  }
->
-  {teamMembers.map((member: any) => (
-    <option
-      key={member.id}
-      value={member.name}
-    >
-      {member.name}
-    </option>
-  ))}
-</select>
+                              <td className="px-6 py-3 align-top">
+                                <div className="flex flex-wrap gap-1 mb-2">
+                                  {editDraft.responsible.map((resp) => (
+                                    <span
+                                      key={resp}
+                                      className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium cursor-pointer hover:bg-red-50 hover:text-red-700"
+                                      onClick={() =>
+                                        setEditDraft({
+                                          ...editDraft,
+                                          responsible: editDraft.responsible.filter((r) => r !== resp),
+                                        })
+                                      }
+                                      title="Clique para remover"
+                                    >
+                                      {resp} ×
+                                    </span>
+                                  ))}
+                                </div>
+                                <select
+                                  className="w-full p-1.5 border border-border rounded text-sm"
+                                  value=""
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value && !editDraft.responsible.includes(value)) {
+                                      setEditDraft({ ...editDraft, responsible: [...editDraft.responsible, value] });
+                                    }
+                                  }}
+                                >
+                                  <option value="">+ Adicionar responsável</option>
+                                  {teamMembers
+                                    .filter((m) => !editDraft.responsible.includes(m.name))
+                                    .map((member) => (
+                                      <option key={member.id} value={member.name}>
+                                        {member.name}
+                                      </option>
+                                    ))}
+                                </select>
                               </td>
                               <td className="px-6 py-3 align-top">
                                 <select

@@ -1,4 +1,5 @@
 import DashboardLayout from '@/components/DashboardLayout';
+import ProjectHealthBanner from '@/components/ProjectHealthBanner';
 import { Target, Save, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -152,6 +153,14 @@ export default function OKRs() {
         <p className="text-sm text-muted-foreground mb-8">
           Transformação Digital de RH · Projeto LG — para Steering Committee, Sponsors e acompanhamento mensal
         </p>
+
+        {/* Status Executivo - mesma fonte usada em Dashboard, Riscos e Auditoria.
+            Só este bloco (Status Geral do Programa) é sincronizado; o Health
+            Score por pilar mais abaixo mede o andamento do negócio, não se o
+            projeto está bloqueado - por isso fica com lógica própria. */}
+        <div className="mb-6">
+          <ProjectHealthBanner />
+        </div>
 
         {/* Status Geral do Programa */}
         <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden mb-10">

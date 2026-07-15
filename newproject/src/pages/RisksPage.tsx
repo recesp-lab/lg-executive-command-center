@@ -1,5 +1,6 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import RiskSemaphore from '@/components/RiskSemaphore';
+import ProjectHealthBanner from '@/components/ProjectHealthBanner';
 import { AlertCircle, Trash2, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
@@ -117,6 +118,11 @@ export default function RisksPage() {
           </div>
         </div>
 
+        {/* Status Executivo - mesma fonte usada na Home e na Auditoria */}
+        <div className="mb-8">
+          <ProjectHealthBanner />
+        </div>
+
         {/* Add Form */}
         {showAddForm && (
           <div className="mb-8 bg-white rounded-lg border border-border shadow-sm p-6">
@@ -161,27 +167,18 @@ export default function RisksPage() {
                 <option value="mitigating">Status: Em Mitigação</option>
                 <option value="resolved">Status: Resolvido</option>
               </select>
-<select
-  className="p-2 border border-border rounded-lg text-sm"
-  value={newRisk.owner}
-  onChange={(e) =>
-    setNewRisk((f) => ({
-      ...f,
-      owner: e.target.value,
-    }))
-  }
->
-  <option value="">Selecione um responsável</option>
-
-  {teamMembers.map((member: any) => (
-    <option
-      key={member.id}
-      value={member.name}
-    >
-      {member.name}
-    </option>
-  ))}
-</select>
+              <select
+                className="p-2 border border-border rounded-lg text-sm"
+                value={newRisk.owner}
+                onChange={(e) => setNewRisk((f) => ({ ...f, owner: e.target.value }))}
+              >
+                <option value="">Selecione um responsável</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.name}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
               <input
                 type="date"
                 className="p-2 border border-border rounded-lg text-sm"
@@ -279,27 +276,18 @@ export default function RisksPage() {
                           </div>
                           <div>
                             <label className="text-xs text-muted-foreground font-semibold mb-1 block">Responsável</label>
-<select
-  className="w-full p-2 border border-border rounded-lg text-sm"
-  value={editDraft.owner}
-  onChange={(e) =>
-    setEditDraft({
-      ...editDraft,
-      owner: e.target.value,
-    })
-  }
->
-  <option value="">Selecione um responsável</option>
-
-  {teamMembers.map((member: any) => (
-    <option
-      key={member.id}
-      value={member.name}
-    >
-      {member.name}
-    </option>
-  ))}
-</select>
+                            <select
+                              className="w-full p-2 border border-border rounded-lg text-sm"
+                              value={editDraft.owner}
+                              onChange={(e) => setEditDraft({ ...editDraft, owner: e.target.value })}
+                            >
+                              <option value="">Selecione um responsável</option>
+                              {teamMembers.map((member) => (
+                                <option key={member.id} value={member.name}>
+                                  {member.name}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           <div>
                             <label className="text-xs text-muted-foreground font-semibold mb-1 block">Prazo</label>
@@ -387,7 +375,7 @@ export default function RisksPage() {
                           <p className="text-xs text-muted-foreground font-semibold mb-1">
                             Probabilidade
                           </p>
-                           <p   className={`text-sm font-semibold ${probabilityConfig[risk.probability].color}`} >
+                          <p className={`text-sm font-semibold ${probabilityConfig[risk.probability].color}`}>
                             {probabilityConfig[risk.probability].label}
                           </p>
                         </div>

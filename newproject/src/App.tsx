@@ -11,6 +11,7 @@ import AuditPlan from '@/pages/AuditPlan';
 import TeamPage from '@/pages/TeamPage';
 import OKRs from '@/pages/OKRs';
 import ControlPanel from '@/pages/ControlPanel';
+import Cronograma from '@/pages/Cronograma';
 import AdminPage from '@/pages/AdminPage';
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/team" component={TeamPage} />
       <Route path="/okrs" component={OKRs} />
       <Route path="/control-panel" component={ControlPanel} />
+      <Route path="/cronograma" component={Cronograma} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>

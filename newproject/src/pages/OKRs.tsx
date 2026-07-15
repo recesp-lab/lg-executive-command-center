@@ -4,6 +4,15 @@ import { Target, Save, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts';
+import {
   computeStatusGeral,
   computeObjectives,
   keyResultStatusEmoji,
@@ -244,7 +253,18 @@ export default function OKRs() {
           <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide mb-3">
             Health Score do Programa
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+
+          <ResponsiveContainer width="100%" height={320}>
+            <RadarChart data={objectives.map((obj) => ({ pillar: obj.pillar, score: objectiveScore(obj) }))}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="pillar" tick={{ fontSize: 11 }} />
+              <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
+              <Radar name="Score" dataKey="score" stroke="#1e3a8a" fill="#3b82f6" fillOpacity={0.4} />
+              <Tooltip formatter={(value: number) => [`${value}%`, 'Score']} />
+            </RadarChart>
+          </ResponsiveContainer>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 mt-4">
             {objectives.map((obj) => {
               const score = objectiveScore(obj);
               return (

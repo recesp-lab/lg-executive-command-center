@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { loadTeamMembers } from '@/data/teamData';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface AuditAction {
   id: string;
@@ -442,6 +443,44 @@ export default function AuditPlan() {
             <p className="text-xs text-red-700 font-semibold mb-2">Bloqueadas</p>
             <p className="text-3xl font-bold text-red-700">{stats.blocked}</p>
           </div>
+        </div>
+
+        {/* Distribuição visual do status - substitui a leitura mental da tabela de números */}
+        <div className="bg-white rounded-lg border border-border shadow-sm p-6 mb-8">
+          <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Distribuição das Ações por Status
+          </h2>
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie
+                data={[
+                  { name: 'Concluídas', value: stats.completed, color: '#22c55e' },
+                  { name: 'Em Progresso', value: stats.inProgress, color: '#3b82f6' },
+                  { name: 'Planejadas', value: stats.planned, color: '#eab308' },
+                  { name: 'Bloqueadas', value: stats.blocked, color: '#ef4444' },
+                ].filter((d) => d.value > 0)}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={2}
+                label={({ name, value }) => `${name}: ${value}`}
+              >
+                {[
+                  { name: 'Concluídas', value: stats.completed, color: '#22c55e' },
+                  { name: 'Em Progresso', value: stats.inProgress, color: '#3b82f6' },
+                  { name: 'Planejadas', value: stats.planned, color: '#eab308' },
+                  { name: 'Bloqueadas', value: stats.blocked, color: '#ef4444' },
+                ]
+                  .filter((d) => d.value > 0)
+                  .map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
+                  ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Sections */}

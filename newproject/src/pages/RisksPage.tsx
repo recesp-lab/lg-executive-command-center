@@ -6,6 +6,17 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { getRiskMetrics, loadRisks, RISKS_STORAGE_KEY, type Risk } from '@/data/risksData';
 import { loadTeamMembers } from '@/data/teamData';
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  ZAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts';
 
 const STORAGE_KEY = RISKS_STORAGE_KEY;
 
@@ -62,6 +73,33 @@ export default function RisksPage() {
   // A matriz de risco (mais abaixo) e o semáforo lêem diretamente de risks,
   // então qualquer edição salva aqui atualiza os dois automaticamente.
   const riskMetrics = getRiskMetrics(risks);
+
+  // Dados para o gráfico de dispersão da Matriz de Risco. Riscos que caem
+  // exatamente na mesma célula (mesmo impacto e probabilidade) recebem um
+  // pequeno espalhamento para não ficarem um em cima do outro no gráfico.
+  const impactValue: Record<Risk['impact'], number> = { low: 1, medium: 2, critical: 3 };
+  const probValue: Record<Risk['probability'], number> = { low: 1, medium: 2, high: 3 };
+  const cellGroups: Record<string, Risk[]> = {};
+  risks.forEach((r) => {
+    const key = `${r.impact}-${r.probability}`;
+    if (!cellGroups[key]) cellGroups[key] = [];
+    cellGroups[key].push(r);
+  });
+  const scatterData = risks.map((r) => {
+    const key = `${r.impact}-${r.probability}`;
+    const group = cellGroups[key];
+    const indexInGroup = group.findIndex((x) => x.id === r.id);
+    const spread = group.length > 1 ? (indexInGroup - (group.length - 1) / 2) * 0.18 : 0;
+    return {
+      id: r.id,
+      x: probValue[r.probability] + spread,
+      y: impactValue[r.impact] + spread,
+      title: r.title,
+      owner: r.owner,
+      status: r.status,
+      impact: r.impact,
+    };
+  });
 
   const handleAddRisk = () => {
     if (!newRisk.title.trim() || !newRisk.owner.trim()) return;
@@ -410,82 +448,73 @@ export default function RisksPage() {
             )}
           </div>
 
-          {/* Risk Matrix - se atualiza automaticamente pois lê direto de risks */}
+          {/* Risk Matrix - agora como gráfico de dispersão, se atualiza automaticamente pois lê direto de risks */}
           <div className="bg-white rounded-lg border border-border shadow-sm p-6">
             <h2 className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
               Matriz de Risco
             </h2>
             <p className="text-xs text-muted-foreground mb-6">
-              Cada risco identificado é posicionado conforme seu impacto e probabilidade reais
+              Cada ponto é um risco, posicionado por impacto (eixo vertical) e probabilidade (eixo horizontal) reais.
+              Passe o mouse sobre um ponto para ver os detalhes.
             </p>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-center table-fixed">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="px-4 py-3 text-xs font-semibold text-foreground w-40">
-                      Impacto / Probabilidade
-                    </th>
-                    <th className="px-4 py-3 text-xs font-semibold text-foreground">
-                      Baixa
-                    </th>
-                    <th className="px-4 py-3 text-xs font-semibold text-foreground">
-                      Média
-                    </th>
-                    <th className="px-4 py-3 text-xs font-semibold text-foreground">
-                      Alta
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(['critical', 'medium', 'low'] as const).map((impactLevel) => {
-                    const impactLabel = { critical: 'Crítico', medium: 'Médio', low: 'Baixo' }[impactLevel];
-                    return (
-                      <tr key={impactLevel} className="border-b border-border">
-                        <td className="px-4 py-3 text-sm font-semibold text-foreground text-left align-top">
-                          {impactLabel}
-                        </td>
-                        {(['low', 'medium', 'high'] as const).map((probLevel) => {
-                          const cellRisks = risks.filter(
-                            (r) => r.impact === impactLevel && r.probability === probLevel
-                          );
-                          const severityScore =
-                            { critical: 3, medium: 2, low: 1 }[impactLevel] *
-                            { high: 3, medium: 2, low: 1 }[probLevel];
-                          const cellColor =
-                            severityScore >= 6
-                              ? 'bg-red-50 border-red-200'
-                              : severityScore >= 3
-                              ? 'bg-yellow-50 border-yellow-200'
-                              : 'bg-green-50 border-green-200';
-                          return (
-                            <td
-                              key={probLevel}
-                              className={`px-3 py-3 align-top border ${cellColor}`}
-                            >
-                              {cellRisks.length === 0 ? (
-                                <span className="text-xs text-muted-foreground">—</span>
-                              ) : (
-                                <div className="space-y-1.5 text-left">
-                                  {cellRisks.map((r) => (
-                                    <div
-                                      key={r.id}
-                                      title={r.description}
-                                      className="text-xs font-medium text-foreground bg-white/70 rounded px-2 py-1 border border-border/60"
-                                    >
-                                      {r.title}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            {risks.length === 0 ? (
+              <div className="p-12 text-center text-sm text-muted-foreground">Nenhum risco para plotar ainda.</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={360}>
+                <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    dataKey="x"
+                    name="Probabilidade"
+                    domain={[0.5, 3.5]}
+                    ticks={[1, 2, 3]}
+                    tickFormatter={(v) => ({ 1: 'Baixa', 2: 'Média', 3: 'Alta' }[Math.round(v)] || '')}
+                    label={{ value: 'Probabilidade', position: 'insideBottom', offset: -10, fontSize: 12 }}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="y"
+                    name="Impacto"
+                    domain={[0.5, 3.5]}
+                    ticks={[1, 2, 3]}
+                    tickFormatter={(v) => ({ 1: 'Baixo', 2: 'Médio', 3: 'Crítico' }[Math.round(v)] || '')}
+                    label={{ value: 'Impacto', angle: -90, position: 'insideLeft', fontSize: 12 }}
+                  />
+                  <ZAxis range={[160, 160]} />
+                  <Tooltip
+                    cursor={{ strokeDasharray: '3 3' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload || !payload.length) return null;
+                      const d = payload[0].payload as (typeof scatterData)[number];
+                      return (
+                        <div className="bg-white border border-border rounded-lg shadow-lg p-3 text-xs max-w-xs">
+                          <p className="font-semibold text-foreground mb-1">{d.title}</p>
+                          <p className="text-muted-foreground">Responsável: {d.owner}</p>
+                          <p className="text-muted-foreground">Status: {statusConfig[d.status].label}</p>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Scatter data={scatterData} fill="#8884d8">
+                    {scatterData.map((entry) => (
+                      <Cell
+                        key={entry.id}
+                        fill={
+                          entry.impact === 'critical' ? '#ef4444' : entry.impact === 'medium' ? '#eab308' : '#22c55e'
+                        }
+                      />
+                    ))}
+                  </Scatter>
+                </ScatterChart>
+              </ResponsiveContainer>
+            )}
+
+            <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> Impacto Crítico</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span> Impacto Médio</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span> Impacto Baixo</span>
             </div>
           </div>
         </div>

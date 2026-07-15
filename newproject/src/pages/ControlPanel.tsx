@@ -3,6 +3,7 @@ import React from 'react';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
 import { loadModules } from '@/data/modulesData';
 import { loadAuditActions } from '@/data/auditData';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface MonthlySnapshot {
   mes: string;
@@ -143,6 +144,27 @@ export default function ControlPanel() {
           Metas são configuráveis onde faz sentido. Os quatro indicadores abaixo são recalculados automaticamente a
           partir de Módulos, Auditoria e Riscos - nenhum é mais um número digitado manualmente.
         </p>
+
+        <div className="bg-white rounded-lg border border-border shadow-sm p-6 mb-8">
+          <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Meta vs. Atual
+          </h2>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart
+              layout="vertical"
+              data={indicators.map((i) => ({ name: i.name, Meta: i.target, Atual: i.current }))}
+              margin={{ left: 40 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" width={180} tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Meta" fill="#cbd5e1" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="Atual" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
         <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="p-6 border-b border-border">

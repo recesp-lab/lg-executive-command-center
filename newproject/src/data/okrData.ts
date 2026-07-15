@@ -14,6 +14,8 @@ export interface KeyResultDef {
   defaultTarget: number;
   defaultCurrent?: number; // só usado se automatic === false
   targetLabel?: string; // texto customizado quando a meta não é um número único (ex.: "30%-50%")
+  fixedTarget?: boolean; // true = meta não é editável (ex.: contagens que sempre miram 0)
+  countStatus?: { redAt: number }; // semáforo por contagem: 0=verde, 1..redAt-1=amarelo, >=redAt=vermelho
 }
 
 export interface KeyResult extends KeyResultDef {
@@ -77,9 +79,8 @@ export function saveManualCurrent(id: string, value: number) {
 const STATUS_GERAL_DEFS: KeyResultDef[] = [
   { id: 'sg1', label: 'Progresso do Projeto', unit: '%', higherIsBetter: true, automatic: true, defaultTarget: 100 },
   { id: 'sg2', label: 'Go-Live dos Módulos', unit: '%', higherIsBetter: true, automatic: true, defaultTarget: 100 },
-  { id: 'sg3', label: 'Integrações Implementadas', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 85 },
-  { id: 'sg4', label: 'Testes Homologados', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 92 },
-  { id: 'sg5', label: 'Incidentes Críticos', unit: 'un', higherIsBetter: false, automatic: true, defaultTarget: 0 },
+  { id: 'sg3', label: 'Ações de Auditoria em Atraso/Bloqueadas', unit: 'un', higherIsBetter: false, automatic: true, defaultTarget: 0, fixedTarget: true, countStatus: { redAt: 3 } },
+  { id: 'sg4', label: 'Riscos Críticos', unit: 'un', higherIsBetter: false, automatic: true, defaultTarget: 0, fixedTarget: true, countStatus: { redAt: 3 } },
 ];
 
 const OBJECTIVE_DEFS: ObjectiveDef[] = [
@@ -155,15 +156,36 @@ function computeAutomaticValue(id: string): number {
   const riskMetrics = getRiskMetrics(risks);
 
   const auditActions = loadAuditActions();
-  const blockedAudit = auditActions.filter((a) => a.status === 'blocked').length;
+  const today = new Date();
+  // Conta uma vez só cada ação que esteja bloqueada OU com prazo vencido,
+  // mesmo que se encaixe nos dois casos ao mesmo tempo.
+  const issueIds = new Set(
+    auditActions
+      .filter(
+        (a) =>
+          a.status === 'blocked' ||
+          (a.status !== 'completed' && a.endDate && new Date(a.endDate) < today)
+      )
+      .map((a) => a.id)
+  );
 
   switch (id) {
-    case 'sg1':
+    case 'sg1': {
+      // Progresso do Projeto = Health Score do Programa (média dos 5 pilares),
+      // em vez de duplicar o Go-Live dos Módulos ou depender de estimativa manual.
+      const objectives = computeObjectives();
+      return overallProgramScore(objectives);
+    }
     case 'sg2':
       return completionRate;
-    case 'sg5':
+    case 'sg3':
+      // Ações de Auditoria em Atraso ou Bloqueadas
+      return issueIds.size;
+    case 'sg4':
+      // Riscos Críticos
       return riskMetrics.critical;
     case 'o4k4': {
+      const blockedAudit = auditActions.filter((a) => a.status === 'blocked').length;
       return auditActions.length ? Math.round(((auditActions.length - blockedAudit) / auditActions.length) * 100) : 100;
     }
     case 'o5k3': {
@@ -179,7 +201,7 @@ function computeAutomaticValue(id: string): number {
 function hydrateKeyResult(def: KeyResultDef): KeyResult {
   const targets = loadTargets();
   const manualCurrents = loadManualCurrents();
-  const target = targets[def.id] ?? def.defaultTarget;
+  const target = def.fixedTarget ? def.defaultTarget : targets[def.id] ?? def.defaultTarget;
   const current = def.automatic
     ? computeAutomaticValue(def.id)
     : manualCurrents[def.id] ?? def.defaultCurrent ?? 0;
@@ -211,6 +233,19 @@ export function statusEmoji(pct: number): string {
   if (pct >= 80) return '🟢';
   if (pct >= 60) return '🟡';
   return '🔴';
+}
+
+// Para indicadores de contagem (ex.: "Ações de Auditoria em Atraso/Bloqueadas",
+// "Riscos Críticos"): 0 = verde, 1 até redAt-1 = amarelo, redAt ou mais = vermelho.
+// Critério simples e documentado, consistente com o mesmo usado no Painel de
+// Controle e na fórmula de Status Executivo do Projeto (projectHealth.ts).
+export function keyResultStatusEmoji(kr: KeyResult): string {
+  if (kr.countStatus) {
+    if (kr.current <= 0) return '🟢';
+    if (kr.current < kr.countStatus.redAt) return '🟡';
+    return '🔴';
+  }
+  return statusEmoji(achievementPct(kr));
 }
 
 export function objectiveScore(obj: Objective): number {

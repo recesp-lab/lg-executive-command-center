@@ -2,6 +2,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Calendar, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { loadTeamMembers } from '@/data/teamData';
 
 interface WeeklyUpdate {
   id: string;
@@ -22,7 +23,7 @@ const defaultUpdates: WeeklyUpdate[] = [
     module: 'Backend API',
     status: 'completed',
     description: 'Implementação de endpoints de autenticação concluída',
-    owner: 'Dev Team',
+    owner: 'Bruno Rafael Costa Freitas',
     dueDate: '2026-07-08',
     priority: 'high',
   },
@@ -31,7 +32,7 @@ const defaultUpdates: WeeklyUpdate[] = [
     module: 'Frontend UI',
     status: 'inProgress',
     description: 'Desenvolvimento do dashboard em andamento',
-    owner: 'Design Team',
+    owner: 'André Silveira',
     dueDate: '2026-07-15',
     priority: 'high',
   },
@@ -40,7 +41,7 @@ const defaultUpdates: WeeklyUpdate[] = [
     module: 'Integração CRM',
     status: 'blocked',
     description: 'Aguardando aprovação de segurança do cliente',
-    owner: 'Integration Team',
+    owner: 'Denis Soares Dias',
     dueDate: '2026-07-22',
     priority: 'medium',
   },
@@ -49,7 +50,7 @@ const defaultUpdates: WeeklyUpdate[] = [
     module: 'Testes E2E',
     status: 'inProgress',
     description: 'Testes de integração em andamento',
-    owner: 'QA Team',
+    owner: 'Daniel Neris de Souza',
     dueDate: '2026-07-10',
     priority: 'high',
   },
@@ -58,7 +59,7 @@ const defaultUpdates: WeeklyUpdate[] = [
     module: 'Documentação',
     status: 'completed',
     description: 'Documentação técnica finalizada',
-    owner: 'Tech Writer',
+    owner: 'Alex Bertuqui',
     dueDate: '2026-07-05',
     priority: 'low',
   },
@@ -95,6 +96,10 @@ export default function WeeklyTracking() {
     }
   });
   const [notesSaved, setNotesSaved] = useState(false);
+
+  // Mesma lista usada em Riscos e Auditoria, então editar a Equipe atualiza
+  // essas opções aqui também.
+  const teamMembers = loadTeamMembers();
 
   useEffect(() => {
     try {
@@ -168,6 +173,14 @@ export default function WeeklyTracking() {
     setEditDraft(null);
   };
 
+  // Se o responsável salvo não bater com nenhum nome atual da Equipe (ex.:
+  // dado antigo tipo "Dev Team"), mantém a opção visível no topo do
+  // dropdown em vez de esconder silenciosamente o valor já salvo.
+  const ownerOptionsFor = (currentOwner: string) =>
+    currentOwner && !teamMembers.some((m) => m.name === currentOwner)
+      ? [currentOwner, ...teamMembers.map((m) => m.name)]
+      : teamMembers.map((m) => m.name);
+
   return (
     <DashboardLayout currentPage="weekly">
       <div className="p-8">
@@ -210,12 +223,18 @@ export default function WeeklyTracking() {
                 value={newUpdate.module}
                 onChange={(e) => setNewUpdate((f) => ({ ...f, module: e.target.value }))}
               />
-              <input
+              <select
                 className="p-2 border border-border rounded-lg text-sm"
-                placeholder="Responsável"
                 value={newUpdate.owner}
                 onChange={(e) => setNewUpdate((f) => ({ ...f, owner: e.target.value }))}
-              />
+              >
+                <option value="">Selecione um responsável</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.name}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
               <select
                 className="p-2 border border-border rounded-lg text-sm"
                 value={newUpdate.status}
@@ -340,11 +359,17 @@ export default function WeeklyTracking() {
                               />
                             </td>
                             <td className="px-6 py-3">
-                              <input
+                              <select
                                 className="w-full p-1.5 border border-border rounded text-sm"
                                 value={editDraft.owner}
                                 onChange={(e) => setEditDraft({ ...editDraft, owner: e.target.value })}
-                              />
+                              >
+                                {ownerOptionsFor(editDraft.owner).map((name) => (
+                                  <option key={name} value={name}>
+                                    {name}
+                                  </option>
+                                ))}
+                              </select>
                             </td>
                             <td className="px-6 py-3">
                               <select

@@ -10,8 +10,8 @@ import RisksPage from '@/pages/RisksPage';
 import AuditPlan from '@/pages/AuditPlan';
 import TeamPage from '@/pages/TeamPage';
 import OKRs from '@/pages/OKRs';
-import AdminPage from '@/pages/AdminPage';
 import ControlPanel from '@/pages/ControlPanel';
+import AdminPage from '@/pages/AdminPage';
 
 function Router() {
   return (

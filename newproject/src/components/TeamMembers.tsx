@@ -1,13 +1,14 @@
 import { Users, Mail, Trash2, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface TeamMember {
   id: string;
   name: string;
   email: string;
   role: string;
-  organization: 'SODIMAC' | 'LG' | 'FALABELLA' | 'RECRUT.AI'
+  organization: 'SODIMAC' | 'LG' | 'FALABELLA';
   department: string;
 }
 
@@ -39,6 +40,18 @@ const emptyForm = {
   organization: 'SODIMAC' as TeamMember['organization'],
   department: '',
 };
+
+const DEPARTMENT_COLORS: { [key: string]: string } = {
+  'Desenvolvimento': '#22c55e',
+  'Análise': '#3b82f6',
+  'TI': '#a855f7',
+  'RH': '#ec4899',
+  'Gerência': '#f97316',
+  'Suporte': '#eab308',
+  'Auditoria': '#ef4444',
+  'Administrativo': '#6b7280',
+};
+const FALLBACK_COLOR = '#6366f1';
 
 export default function TeamMembers() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
@@ -88,15 +101,20 @@ export default function TeamMembers() {
     return colors[dept] || 'bg-indigo-100 text-indigo-800';
   };
 
-const stats = {
-  total: teamMembers.length,
-  sodimac: teamMembers.filter((m) => m.organization === 'SODIMAC').length,
-  lg: teamMembers.filter((m) => m.organization === 'LG').length,
-  falabella: teamMembers.filter((m) => m.organization === 'FALABELLA').length,
-  recrutai: teamMembers.filter((m) => m.organization === 'RECRUT.AI').length,
-};
+  const stats = {
+    total: teamMembers.length,
+    sodimac: teamMembers.filter((m) => m.organization === 'SODIMAC').length,
+    lg: teamMembers.filter((m) => m.organization === 'LG').length,
+    falabella: teamMembers.filter((m) => m.organization === 'FALABELLA').length,
+  };
 
   const departments = Array.from(new Set(teamMembers.map((m) => m.department))).sort();
+
+  const departmentChartData = departments.map((dept) => ({
+    department: dept,
+    count: teamMembers.filter((m) => m.department === dept).length,
+    color: DEPARTMENT_COLORS[dept] || FALLBACK_COLOR,
+  }));
 
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const filteredMembers = selectedDept
@@ -139,7 +157,7 @@ const stats = {
           </Button>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Total de {stats.total} membros distribuídos entre SODIMAC, LG, Falabella e RECRUT.AI
+          Total de {stats.total} membros distribuídos entre SODIMAC, LG e Falabella
         </p>
         <div className="h-1 w-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded"></div>
       </div>
@@ -181,7 +199,6 @@ const stats = {
               <option value="SODIMAC">SODIMAC</option>
               <option value="LG">LG</option>
               <option value="FALABELLA">FALABELLA</option>
-              <option value="RECRUT.AI">RECRUT.AI</option>
             </select>
           </div>
           <div className="flex justify-end gap-3">
@@ -194,7 +211,7 @@ const stats = {
       )}
 
       {/* Organization Stats */}
-     <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-lg border border-border shadow-sm p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-2">Total de Membros</p>
           <p className="text-3xl font-bold text-foreground">{stats.total}</p>
@@ -211,12 +228,26 @@ const stats = {
           <p className="text-xs text-orange-700 font-semibold mb-2">FALABELLA</p>
           <p className="text-3xl font-bold text-orange-700">{stats.falabella}</p>
         </div>
-<div className="bg-emerald-50 rounded-lg border border-emerald-200 shadow-sm p-4">
-  <p className="text-xs text-emerald-700 font-semibold mb-2">RECRUT.AI</p>
-  <p className="text-3xl font-bold text-emerald-700">
-    {stats.recrutai}
-  </p>
-</div>
+      </div>
+
+      {/* Distribuição por departamento - gráfico de barras em vez de só pills */}
+      <div className="bg-white rounded-lg border border-border shadow-sm p-6 mb-8">
+        <h3 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          Distribuição por Departamento
+        </h3>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={departmentChartData} margin={{ bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="department" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              {departmentChartData.map((entry) => (
+                <Cell key={entry.department} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Departments Tabs - clique para filtrar a tabela abaixo */}
@@ -295,21 +326,16 @@ const stats = {
                         onChange={(e) => updateMember(member.id, { department: e.target.value })}
                       />
                     </td>
-                    <td className="px-6 py-4 text-sm">                    
-<select
-  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}`}
-  value={member.organization}
-  onChange={(e) =>
-    updateMember(member.id, {
-      organization: e.target.value as TeamMember['organization'],
-    })
-  }
->
-  <option value="SODIMAC">SODIMAC</option>
-  <option value="LG">LG</option>
-  <option value="FALABELLA">FALABELLA</option>
-  <option value="RECRUT.AI">RECRUT.AI</option>
-</select>
+                    <td className="px-6 py-4 text-sm">
+                      <select
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold ${getOrgColor(member.organization)}`}
+                        value={member.organization}
+                        onChange={(e) => updateMember(member.id, { organization: e.target.value as TeamMember['organization'] })}
+                      >
+                        <option value="SODIMAC">SODIMAC</option>
+                        <option value="LG">LG</option>
+                        <option value="FALABELLA">FALABELLA</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <button
@@ -333,7 +359,7 @@ const stats = {
         <p className="text-sm text-blue-900">
           <strong>Total de Membros:</strong> {stats.total} pessoas
           <br />
-          <strong>Distribuição:</strong> SODIMAC ({stats.sodimac}), LG ({stats.lg}), Falabella ({stats.falabella}), RECRUT.AI ({stats.recrutai})
+          <strong>Distribuição:</strong> SODIMAC ({stats.sodimac}), LG ({stats.lg}), Falabella ({stats.falabella})
           <br />
           <strong>Departamentos:</strong> {departments.join(', ')}
         </p>

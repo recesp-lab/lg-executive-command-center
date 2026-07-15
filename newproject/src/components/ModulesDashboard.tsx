@@ -1,5 +1,6 @@
 import { CheckCircle2, AlertCircle, Clock, XCircle, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 type ModuleStatus = 'completed' | 'in-progress' | 'not-started' | 'cancelled';
 
@@ -38,9 +39,10 @@ const defaultModules: Module[] = [
   { id: '22', name: 'Restaurante', status: 'cancelled', comment: '' },
 ];
 
-const statusConfig: Record<ModuleStatus, { color: string; label: string; icon: typeof CheckCircle2; bgLight: string; border: string; text: string }> = {
+const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: string; icon: typeof CheckCircle2; bgLight: string; border: string; text: string }> = {
   completed: {
     color: 'bg-blue-500',
+    hex: '#3b82f6',
     label: 'IMPLANTADOS (base sólida)',
     icon: CheckCircle2,
     bgLight: 'bg-blue-50',
@@ -49,6 +51,7 @@ const statusConfig: Record<ModuleStatus, { color: string; label: string; icon: t
   },
   'in-progress': {
     color: 'bg-yellow-400',
+    hex: '#facc15',
     label: 'EM ANDAMENTO (alto volume crítico)',
     icon: Clock,
     bgLight: 'bg-yellow-50',
@@ -57,6 +60,7 @@ const statusConfig: Record<ModuleStatus, { color: string; label: string; icon: t
   },
   'not-started': {
     color: 'bg-red-500',
+    hex: '#ef4444',
     label: 'NÃO INICIADO',
     icon: AlertCircle,
     bgLight: 'bg-red-50',
@@ -65,6 +69,7 @@ const statusConfig: Record<ModuleStatus, { color: string; label: string; icon: t
   },
   cancelled: {
     color: 'bg-gray-500',
+    hex: '#6b7280',
     label: 'CANCELADOS',
     icon: XCircle,
     bgLight: 'bg-gray-100',
@@ -117,6 +122,10 @@ export default function ModulesDashboard() {
     cancelled: totalModules ? Math.round((stats.cancelled / totalModules) * 100) : 0,
   };
 
+  const donutData = statusOrder
+    .map((status) => ({ name: columnTitle[status], value: stats[status], color: statusConfig[status].hex }))
+    .filter((d) => d.value > 0);
+
   const updateModule = (id: string, patch: Partial<Module>) => {
     setModules((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
   };
@@ -148,11 +157,37 @@ export default function ModulesDashboard() {
       {/* Status Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statusOrder.map((status) => (
-           <div   key={status}   className={`${statusConfig[status].color} text-white p-6 rounded-lg shadow-lg`} >
+          <div key={status} className={`${statusConfig[status].color} text-white p-6 rounded-lg shadow-lg`}>
             <div className="text-5xl font-bold mb-2">{String(stats[status]).padStart(2, '0')}</div>
             <div className="text-sm font-bold uppercase tracking-wide">{statusConfig[status].label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Distribuição visual - gráfico de rosca em vez de só números soltos */}
+      <div className="bg-white rounded-lg border border-border shadow-sm p-6 mb-8">
+        <h3 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          Distribuição dos Módulos por Status
+        </h3>
+        <ResponsiveContainer width="100%" height={280}>
+          <PieChart>
+            <Pie
+              data={donutData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={60}
+              outerRadius={100}
+              paddingAngle={2}
+              label={({ name, value }) => `${name}: ${value}`}
+            >
+              {donutData.map((entry) => (
+                <Cell key={entry.name} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Modules Grid - each card is fully editable */}

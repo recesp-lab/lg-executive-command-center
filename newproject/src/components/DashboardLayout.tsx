@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target, SlidersHorizontal, Shield } from 'lucide-react';
+import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target, SlidersHorizontal, Shield, Activity } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel';
+  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel' | 'cronograma';
 }
 
 export default function DashboardLayout({ children, currentPage = 'dashboard' }: DashboardLayoutProps) {
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
     { id: 'team', label: 'Equipe', icon: Users, href: '/team' },
     { id: 'okrs', label: 'OKRs & KPIs', icon: Target, href: '/okrs' },
     { id: 'control-panel', label: 'Painel de Controle', icon: SlidersHorizontal, href: '/control-panel' },
+    { id: 'cronograma', label: 'Cronograma', icon: Activity, href: '/cronograma' },
     { id: 'admin', label: 'Administração', icon: Shield, href: '/admin' },
   ];
 
@@ -31,6 +32,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
             <div>
               <h1 className="text-xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Projeto LG</h1>
               <p className="text-xs text-muted-foreground">Dashboard Executivo</p>
+              <p className="text-xs text-muted-foreground">Renato Pereira</p>
             </div>
           </div>
         </div>

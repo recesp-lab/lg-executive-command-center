@@ -6,8 +6,7 @@ import { useState } from 'react';
 import {
   computeStatusGeral,
   computeObjectives,
-  achievementPct,
-  statusEmoji,
+  keyResultStatusEmoji,
   objectiveScore,
   overallProgramScore,
   overallStatusLabel,
@@ -93,7 +92,6 @@ export default function OKRs() {
   };
 
   const renderKrRow = (kr: KeyResult) => {
-    const pct = achievementPct(kr);
     return (
       <tr key={kr.id} className="border-t border-border">
         <td className="p-3 text-sm text-foreground">
@@ -105,13 +103,20 @@ export default function OKRs() {
           )}
         </td>
         <td className="text-center p-3">
-          <input
-            type="number"
-            step="0.1"
-            value={kr.target}
-            className="w-20 text-center border border-border rounded px-2 py-1 text-sm"
-            onChange={(e) => handleTargetChange(kr.id, Number(e.target.value))}
-          />
+          {kr.fixedTarget ? (
+            <span className="text-sm text-muted-foreground">
+              {kr.target}
+              {kr.unit === '%' ? '%' : ''}
+            </span>
+          ) : (
+            <input
+              type="number"
+              step="0.1"
+              value={kr.target}
+              className="w-20 text-center border border-border rounded px-2 py-1 text-sm"
+              onChange={(e) => handleTargetChange(kr.id, Number(e.target.value))}
+            />
+          )}
           {kr.targetLabel && <p className="text-[10px] text-muted-foreground mt-0.5">{kr.targetLabel}</p>}
         </td>
         <td className="text-center p-3">
@@ -130,7 +135,7 @@ export default function OKRs() {
             />
           )}
         </td>
-        <td className="text-center p-3 text-xl">{statusEmoji(pct)}</td>
+        <td className="text-center p-3 text-xl">{keyResultStatusEmoji(kr)}</td>
       </tr>
     );
   };

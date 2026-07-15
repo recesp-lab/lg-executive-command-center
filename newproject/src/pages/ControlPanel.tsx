@@ -2,43 +2,34 @@ import DashboardLayout from '@/components/DashboardLayout';
 import React from 'react';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
 import { loadModules } from '@/data/modulesData';
+import { loadAuditActions } from '@/data/auditData';
 
 interface MonthlySnapshot {
   mes: string;
   healthScore: number;
   goLive: number;
-  integracoes: number;
-  testes: number;
-  incidentes: number;
+  auditIssues: number;
+  criticalRisks: number;
   createdAt: string;
 }
 
+// Critério de semáforo por contagem, igual ao usado em OKRs e no Status
+// Executivo do Projeto: 0 = verde, 1-2 = amarelo, 3+ = vermelho.
+const countToScore = (count: number) => (count === 0 ? 100 : count <= 2 ? 70 : 40);
+
 export default function ControlPanel() {
   const TARGETS_STORAGE = 'lg-dashboard:control-panel-targets';
-  const METRICS_STORAGE = 'lg-dashboard:control-panel-metrics';
-  const HISTORY_STORAGE = 'lg-dashboard:control-panel-history';
+  const HISTORY_STORAGE = 'lg-dashboard:control-panel-history-v2';
 
   const [targets, setTargets] = React.useState(() => {
-    const saved = localStorage.getItem(TARGETS_STORAGE);
-    return saved
-      ? JSON.parse(saved)
-      : {
-          healthScore: 100,
-          goLiveModulos: 100,
-          integracoesImplementadas: 100,
-          testesHomologados: 100,
-          incidentesCriticos: 0,
-        };
-  });
-
-  const [manualMetrics, setManualMetrics] = React.useState(() => {
-    const saved = localStorage.getItem(METRICS_STORAGE);
-    return saved
-      ? JSON.parse(saved)
-      : {
-          integracoesImplementadas: 85,
-          testesHomologados: 92,
-        };
+    try {
+      const saved = localStorage.getItem(TARGETS_STORAGE);
+      return saved
+        ? JSON.parse(saved)
+        : { healthScore: 100, goLiveModulos: 100 };
+    } catch {
+      return { healthScore: 100, goLiveModulos: 100 };
+    }
   });
 
   // Antes: JSON.parse(localStorage.getItem('lg-dashboard:modules') || '[]')
@@ -46,38 +37,45 @@ export default function ControlPanel() {
   // Agora usa o loader com fallback garantido, igual ao resto do dashboard.
   const modules = loadModules();
   const riskMetrics = getRiskMetrics(loadRisks());
+  const auditActions = loadAuditActions();
 
   const completedModules = modules.filter((m) => m.status === 'completed').length;
+  const goLiveModulosCalculado = modules.length > 0 ? Math.round((completedModules / modules.length) * 100) : 0;
 
-  const progressoProjetoCalculado =
-    modules.length > 0 ? Math.round((completedModules / modules.length) * 100) : 0;
-  const goLiveModulosCalculado = progressoProjetoCalculado;
+  const today = new Date();
+  const auditIssuesCalculado = new Set(
+    auditActions
+      .filter(
+        (a) =>
+          a.status === 'blocked' ||
+          (a.status !== 'completed' && a.endDate && new Date(a.endDate) < today)
+      )
+      .map((a) => a.id)
+  ).size;
 
-  const integracoesImplementadasCalculado = manualMetrics.integracoesImplementadas;
-  const testesHomologadosCalculado = manualMetrics.testesHomologados;
-  const incidentesCriticosCalculado = riskMetrics.critical;
+  const criticalRisksCalculado = riskMetrics.critical;
 
-  const riscosScore =
-    incidentesCriticosCalculado === 0 ? 100 : incidentesCriticosCalculado <= 3 ? 80 : 40;
+  const auditScore = countToScore(auditIssuesCalculado);
+  const riskScore = countToScore(criticalRisksCalculado);
 
+  // Fórmula revisada: os dois indicadores manuais (Integrações/Testes) saíram
+  // e viraram sinais 100% automáticos de Auditoria e Riscos, então o Health
+  // Score agora pondera só o que é medido de verdade: Go-Live (50%),
+  // problemas de auditoria (25%) e riscos críticos (25%).
   const healthScoreCalculado = Math.round(
-    goLiveModulosCalculado * 0.4 +
-      integracoesImplementadasCalculado * 0.2 +
-      testesHomologadosCalculado * 0.2 +
-      riscosScore * 0.2
+    goLiveModulosCalculado * 0.5 + auditScore * 0.25 + riskScore * 0.25
   );
 
   React.useEffect(() => {
-    localStorage.setItem(TARGETS_STORAGE, JSON.stringify(targets));
+    try {
+      localStorage.setItem(TARGETS_STORAGE, JSON.stringify(targets));
+    } catch {
+      // localStorage indisponível
+    }
   }, [targets]);
 
-  React.useEffect(() => {
-    localStorage.setItem(METRICS_STORAGE, JSON.stringify(manualMetrics));
-  }, [manualMetrics]);
-
   // Histórico agora é estado do React (não lido direto do localStorage no
-  // render), então a tabela atualiza sozinha assim que você salva - antes
-  // ficava "travado" até algo mais forçar a tela a atualizar.
+  // render), então a tabela atualiza sozinha assim que você salva.
   const [history, setHistory] = React.useState<MonthlySnapshot[]>(() => {
     try {
       return JSON.parse(localStorage.getItem(HISTORY_STORAGE) || '[]');
@@ -87,16 +85,15 @@ export default function ControlPanel() {
   });
   const [savedFeedback, setSavedFeedback] = React.useState(false);
 
-  // Indica explicitamente se "maior é melhor" (ex.: % implantado) ou "menor
-  // é melhor" (ex.: incidentes). Sem essa marcação, editar a meta de
-  // Incidentes Críticos para um valor diferente de zero invertia o semáforo
-  // e passava a tratar mais incidentes como algo bom - esse era o bug.
+  // higherIsBetter marca explicitamente o sentido de cada indicador. Sem
+  // isso, editar a meta de um indicador "menor é melhor" para um valor
+  // diferente de zero podia inverter o semáforo - esse já foi um bug real
+  // aqui antes.
   const indicators = [
-    { name: 'Health Score do Programa', target: targets.healthScore, current: healthScoreCalculado, higherIsBetter: true },
-    { name: 'Go-Live dos Módulos', target: targets.goLiveModulos, current: progressoProjetoCalculado, higherIsBetter: true },
-    { name: 'Integrações Implementadas', target: targets.integracoesImplementadas, current: integracoesImplementadasCalculado, higherIsBetter: true },
-    { name: 'Testes Homologados', target: targets.testesHomologados, current: testesHomologadosCalculado, higherIsBetter: true },
-    { name: 'Incidentes Críticos', target: targets.incidentesCriticos, current: riskMetrics.critical, higherIsBetter: false },
+    { name: 'Health Score do Programa', target: targets.healthScore, current: healthScoreCalculado, higherIsBetter: true, editableTarget: true },
+    { name: 'Go-Live dos Módulos', target: targets.goLiveModulos, current: goLiveModulosCalculado, higherIsBetter: true, editableTarget: true },
+    { name: 'Ações de Auditoria em Atraso/Bloqueadas', target: 0, current: auditIssuesCalculado, higherIsBetter: false, editableTarget: false },
+    { name: 'Riscos Críticos', target: 0, current: criticalRisksCalculado, higherIsBetter: false, editableTarget: false },
   ];
 
   const saveMonthlySnapshot = () => {
@@ -104,21 +101,24 @@ export default function ControlPanel() {
       mes: new Date().toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' }),
       healthScore: healthScoreCalculado,
       goLive: goLiveModulosCalculado,
-      integracoes: integracoesImplementadasCalculado,
-      testes: testesHomologadosCalculado,
-      incidentes: incidentesCriticosCalculado,
+      auditIssues: auditIssuesCalculado,
+      criticalRisks: criticalRisksCalculado,
       createdAt: new Date().toISOString(),
     };
 
     const updated = [...history.filter((s) => s.mes !== snapshot.mes), snapshot];
     setHistory(updated);
-    localStorage.setItem(HISTORY_STORAGE, JSON.stringify(updated));
+    try {
+      localStorage.setItem(HISTORY_STORAGE, JSON.stringify(updated));
+    } catch {
+      // localStorage indisponível
+    }
     setSavedFeedback(true);
     setTimeout(() => setSavedFeedback(false), 2000);
   };
 
-  // Fórmula agora depende de higherIsBetter, então "menor é melhor"
-  // (Incidentes Críticos) nunca mais inverte, seja qual for a meta definida.
+  // Fórmula depende de higherIsBetter, então indicadores "menor é melhor"
+  // (Auditoria, Riscos) nunca invertem, seja qual for a meta.
   const getStatus = (target: number, current: number, higherIsBetter: boolean) => {
     if (higherIsBetter) {
       if (target === 0) return current === 0 ? '🟢' : '🔴';
@@ -127,7 +127,6 @@ export default function ControlPanel() {
       if (ratio >= 0.5) return '🟡';
       return '🔴';
     }
-    // menor é melhor: está dentro da meta = ótimo; quanto mais passar, pior
     if (current <= target) return '🟢';
     const excess = current - target;
     if (excess <= 2) return '🟡';
@@ -141,7 +140,8 @@ export default function ControlPanel() {
           Painel de Controle
         </h1>
         <p className="text-sm text-muted-foreground mb-8">
-          Metas são configuráveis. Valores atuais e status são calculados automaticamente.
+          Metas são configuráveis onde faz sentido. Os quatro indicadores abaixo são recalculados automaticamente a
+          partir de Módulos, Auditoria e Riscos - nenhum é mais um número digitado manualmente.
         </p>
 
         <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
@@ -165,57 +165,30 @@ export default function ControlPanel() {
                   <td className="p-4">{item.name}</td>
 
                   <td className="text-center p-4">
-                    <input
-                      type="number"
-                      min={0}
-                      max={item.name === 'Incidentes Críticos' ? undefined : 100}
-                      value={item.target}
-                      className="w-20 text-center border border-border rounded px-2 py-1"
-                      onChange={(e) => {
-                        const value = Number(e.target.value);
-                        switch (item.name) {
-                          case 'Health Score do Programa':
-                            setTargets((prev: any) => ({ ...prev, healthScore: value }));
-                            break;
-                          case 'Go-Live dos Módulos':
-                            setTargets((prev: any) => ({ ...prev, goLiveModulos: value }));
-                            break;
-                          case 'Integrações Implementadas':
-                            setTargets((prev: any) => ({ ...prev, integracoesImplementadas: value }));
-                            break;
-                          case 'Testes Homologados':
-                            setTargets((prev: any) => ({ ...prev, testesHomologados: value }));
-                            break;
-                          case 'Incidentes Críticos':
-                            setTargets((prev: any) => ({ ...prev, incidentesCriticos: value }));
-                            break;
-                        }
-                      }}
-                    />
-                  </td>
-
-                  <td className="text-center p-4">
-                    {item.name === 'Integrações Implementadas' || item.name === 'Testes Homologados' ? (
+                    {item.editableTarget ? (
                       <input
                         type="number"
                         min={0}
                         max={100}
-                        value={item.current}
+                        value={item.target}
                         className="w-20 text-center border border-border rounded px-2 py-1"
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          if (item.name === 'Integrações Implementadas') {
-                            setManualMetrics((prev: any) => ({ ...prev, integracoesImplementadas: value }));
+                          if (item.name === 'Health Score do Programa') {
+                            setTargets((prev: any) => ({ ...prev, healthScore: value }));
                           }
-                          if (item.name === 'Testes Homologados') {
-                            setManualMetrics((prev: any) => ({ ...prev, testesHomologados: value }));
+                          if (item.name === 'Go-Live dos Módulos') {
+                            setTargets((prev: any) => ({ ...prev, goLiveModulos: value }));
                           }
                         }}
                       />
                     ) : (
-                      item.current
+                      <span className="text-muted-foreground">{item.target}</span>
                     )}
                   </td>
+
+                  <td className="text-center p-4 font-semibold">{item.current}</td>
+
                   <td className="text-center p-4 text-xl">
                     {getStatus(item.target, item.current, item.higherIsBetter)}
                   </td>
@@ -250,9 +223,8 @@ export default function ControlPanel() {
                         <th className="text-left p-3 font-semibold text-muted-foreground">Mês</th>
                         <th className="text-center p-3 font-semibold text-muted-foreground">Health Score</th>
                         <th className="text-center p-3 font-semibold text-muted-foreground">Go-Live</th>
-                        <th className="text-center p-3 font-semibold text-muted-foreground">Integrações</th>
-                        <th className="text-center p-3 font-semibold text-muted-foreground">Testes</th>
-                        <th className="text-center p-3 font-semibold text-muted-foreground">Incidentes</th>
+                        <th className="text-center p-3 font-semibold text-muted-foreground">Auditoria em Atraso/Bloqueada</th>
+                        <th className="text-center p-3 font-semibold text-muted-foreground">Riscos Críticos</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -261,9 +233,8 @@ export default function ControlPanel() {
                           <td className="p-3">{snap.mes}</td>
                           <td className="text-center p-3 font-semibold">{snap.healthScore}%</td>
                           <td className="text-center p-3">{snap.goLive}%</td>
-                          <td className="text-center p-3">{snap.integracoes}%</td>
-                          <td className="text-center p-3">{snap.testes}%</td>
-                          <td className="text-center p-3">{snap.incidentes}</td>
+                          <td className="text-center p-3">{snap.auditIssues}</td>
+                          <td className="text-center p-3">{snap.criticalRisks}</td>
                         </tr>
                       ))}
                     </tbody>

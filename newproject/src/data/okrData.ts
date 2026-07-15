@@ -1,193 +1,343 @@
-import { loadModules, type Module } from './modulesData';
+import { loadModules } from './modulesData';
 import { loadRisks, getRiskMetrics } from './risksData';
-import { loadAuditActions, type AuditAction } from './auditData';
+import { loadAuditActions } from './auditData';
 import { loadTeamMembers } from './teamData';
 
-export interface KeyResult {
+export type Unit = '%' | 'un' | 'score';
+
+export interface KeyResultDef {
   id: string;
   label: string;
-  current: number;
-  target: number;
-  unit: '%' | 'un';
-  automatic: boolean;
+  unit: Unit;
   higherIsBetter: boolean;
+  automatic: boolean;
+  defaultTarget: number;
+  defaultCurrent?: number; // só usado se automatic === false
+  targetLabel?: string; // texto customizado quando a meta não é um número único (ex.: "30%-50%")
 }
 
-export interface Objective {
+export interface KeyResult extends KeyResultDef {
+  target: number;
+  current: number;
+}
+
+export interface ObjectiveDef {
   id: string;
-  title: string;
+  pillar: string;
+  objective: string;
+  keyResults: KeyResultDef[];
+}
+
+export interface Objective extends Omit<ObjectiveDef, 'keyResults'> {
   keyResults: KeyResult[];
 }
 
-const severityWeight = { critical: 3, medium: 2, low: 1 } as const;
+const TARGETS_KEY = 'lg-dashboard:okr-targets';
+const MANUAL_CURRENTS_KEY = 'lg-dashboard:okr-manual-currents';
+const EXEC_MESSAGE_KEY = 'lg-dashboard:okr-exec-message';
+const HISTORY_KEY = 'lg-dashboard:okr-history-v2';
 
-// --- Métricas manuais (não existem ainda no sistema: satisfação, chamados
-// de suporte, tempo médio de resolução). Ficam editáveis nesta página e
-// persistem no navegador, deixando claro que não são 100% automáticas. ---
-
-const MANUAL_STORAGE_KEY = 'lg-dashboard:okr-manual';
-
-export interface ManualMetrics {
-  satisfaction: number; // nota de 0 a 10
-  supportTickets: number;
-  avgResolutionDays: number;
-}
-
-const defaultManual: ManualMetrics = {
-  satisfaction: 7,
-  supportTickets: 0,
-  avgResolutionDays: 0,
-};
-
-export function loadManualMetrics(): ManualMetrics {
+function loadMap(key: string): Record<string, number> {
   try {
-    const saved = localStorage.getItem(MANUAL_STORAGE_KEY);
-    return saved ? { ...defaultManual, ...JSON.parse(saved) } : defaultManual;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : {};
   } catch {
-    return defaultManual;
+    return {};
   }
 }
 
-export function saveManualMetrics(metrics: ManualMetrics) {
+function saveMap(key: string, map: Record<string, number>) {
   try {
-    localStorage.setItem(MANUAL_STORAGE_KEY, JSON.stringify(metrics));
+    localStorage.setItem(key, JSON.stringify(map));
   } catch {
     // localStorage indisponível
   }
 }
 
-// --- Histórico de snapshots para o gráfico de tendência ---
+export function loadTargets(): Record<string, number> {
+  return loadMap(TARGETS_KEY);
+}
 
-const HISTORY_STORAGE_KEY = 'lg-dashboard:okr-history';
+export function saveTarget(id: string, value: number) {
+  const map = loadTargets();
+  map[id] = value;
+  saveMap(TARGETS_KEY, map);
+}
+
+export function loadManualCurrents(): Record<string, number> {
+  return loadMap(MANUAL_CURRENTS_KEY);
+}
+
+export function saveManualCurrent(id: string, value: number) {
+  const map = loadManualCurrents();
+  map[id] = value;
+  saveMap(MANUAL_CURRENTS_KEY, map);
+}
+
+const STATUS_GERAL_DEFS: KeyResultDef[] = [
+  { id: 'sg1', label: 'Progresso do Projeto', unit: '%', higherIsBetter: true, automatic: true, defaultTarget: 100 },
+  { id: 'sg2', label: 'Go-Live dos Módulos', unit: '%', higherIsBetter: true, automatic: true, defaultTarget: 100 },
+  { id: 'sg3', label: 'Integrações Implementadas', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 85 },
+  { id: 'sg4', label: 'Testes Homologados', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 92 },
+  { id: 'sg5', label: 'Incidentes Críticos', unit: 'un', higherIsBetter: false, automatic: true, defaultTarget: 0 },
+];
+
+const OBJECTIVE_DEFS: ObjectiveDef[] = [
+  {
+    id: 'o1',
+    pillar: 'Eficiência Operacional',
+    objective: 'Modernizar os processos de RH através da automação e digitalização.',
+    keyResults: [
+      { id: 'o1k1', label: 'Redução de erros em benefícios', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 80, defaultCurrent: 72 },
+      { id: 'o1k2', label: 'Redução de retrabalho manual', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 40, defaultCurrent: 35 },
+      { id: 'o1k3', label: 'Redução de erros de processamento da folha', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 60, defaultCurrent: 55 },
+      { id: 'o1k4', label: 'Redução do tempo de fechamento da folha', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 40, defaultCurrent: 38, targetLabel: '30%-50%' },
+      { id: 'o1k5', label: 'Processos automatizados', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 90, defaultCurrent: 78 },
+    ],
+  },
+  {
+    id: 'o2',
+    pillar: 'Dados e Governança',
+    objective: 'Garantir uma única fonte confiável de dados para RH e liderança.',
+    keyResults: [
+      { id: 'o2k1', label: 'Redução de divergências entre sistemas', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 90, defaultCurrent: 88 },
+      { id: 'o2k2', label: 'Precisão cadastral', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 99, defaultCurrent: 98.5 },
+      { id: 'o2k3', label: 'Eliminação de planilhas paralelas', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 80 },
+      { id: 'o2k4', label: 'Integrações automatizadas', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 90 },
+      { id: 'o2k5', label: 'Dashboards corporativos implantados', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 60 },
+    ],
+  },
+  {
+    id: 'o3',
+    pillar: 'Experiência Digital',
+    objective: 'Promover autonomia e melhor experiência digital.',
+    keyResults: [
+      { id: 'o3k1', label: 'Uso do Autosserviço', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 85, defaultCurrent: 78 },
+      { id: 'o3k2', label: 'Redução de chamados de RH', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 50, defaultCurrent: 45 },
+      { id: 'o3k3', label: 'Solicitações digitais', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 90, defaultCurrent: 82 },
+      { id: 'o3k4', label: 'Satisfação dos usuários', unit: 'score', higherIsBetter: true, automatic: false, defaultTarget: 4.5, defaultCurrent: 4.4 },
+      { id: 'o3k5', label: 'Adoção pós Go-Live', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 85, defaultCurrent: 80 },
+    ],
+  },
+  {
+    id: 'o4',
+    pillar: 'Compliance',
+    objective: 'Reduzir riscos trabalhistas e fortalecer conformidade legal.',
+    keyResults: [
+      { id: 'o4k1', label: 'Aderência ao eSocial', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 100 },
+      { id: 'o4k2', label: 'Compliance LGPD', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 95 },
+      { id: 'o4k3', label: 'Redução de não conformidades', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 30, defaultCurrent: 28 },
+      { id: 'o4k4', label: 'Auditorias sem apontamentos críticos', unit: '%', higherIsBetter: true, automatic: true, defaultTarget: 100 },
+      { id: 'o4k5', label: 'Controles automatizados implantados', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 85 },
+    ],
+  },
+  {
+    id: 'o5',
+    pillar: 'Analytics',
+    objective: 'Transformar dados em decisões para geração de valor ao negócio.',
+    keyResults: [
+      { id: 'o5k1', label: 'Dashboards executivos disponíveis', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 100, defaultCurrent: 75 },
+      { id: 'o5k2', label: 'Redução do tempo para relatórios', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 80, defaultCurrent: 70 },
+      { id: 'o5k3', label: 'Indicadores atualizados automaticamente', unit: '%', higherIsBetter: true, automatic: true, defaultTarget: 100 },
+      { id: 'o5k4', label: 'Líderes utilizando dashboards', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 90, defaultCurrent: 65 },
+      { id: 'o5k5', label: 'Consolidação manual eliminada', unit: '%', higherIsBetter: true, automatic: false, defaultTarget: 70, defaultCurrent: 60 },
+    ],
+  },
+];
+
+function computeAutomaticValue(id: string): number {
+  const modules = loadModules();
+  const totalModules = modules.length;
+  const completed = modules.filter((m) => m.status === 'completed').length;
+  const completionRate = totalModules ? Math.round((completed / totalModules) * 100) : 0;
+
+  const risks = loadRisks();
+  const riskMetrics = getRiskMetrics(risks);
+
+  const auditActions = loadAuditActions();
+  const blockedAudit = auditActions.filter((a) => a.status === 'blocked').length;
+
+  switch (id) {
+    case 'sg1':
+    case 'sg2':
+      return completionRate;
+    case 'sg5':
+      return riskMetrics.critical;
+    case 'o4k4': {
+      return auditActions.length ? Math.round(((auditActions.length - blockedAudit) / auditActions.length) * 100) : 100;
+    }
+    case 'o5k3': {
+      const allDefs = [...STATUS_GERAL_DEFS, ...OBJECTIVE_DEFS.flatMap((o) => o.keyResults)];
+      const autoCount = allDefs.filter((d) => d.automatic).length;
+      return Math.round((autoCount / allDefs.length) * 100);
+    }
+    default:
+      return 0;
+  }
+}
+
+function hydrateKeyResult(def: KeyResultDef): KeyResult {
+  const targets = loadTargets();
+  const manualCurrents = loadManualCurrents();
+  const target = targets[def.id] ?? def.defaultTarget;
+  const current = def.automatic
+    ? computeAutomaticValue(def.id)
+    : manualCurrents[def.id] ?? def.defaultCurrent ?? 0;
+  return { ...def, target, current };
+}
+
+export function computeStatusGeral(): KeyResult[] {
+  return STATUS_GERAL_DEFS.map(hydrateKeyResult);
+}
+
+export function computeObjectives(): Objective[] {
+  return OBJECTIVE_DEFS.map((o) => ({
+    ...o,
+    keyResults: o.keyResults.map(hydrateKeyResult),
+  }));
+}
+
+export function achievementPct(kr: KeyResult): number {
+  if (kr.higherIsBetter) {
+    if (kr.target === 0) return kr.current === 0 ? 100 : 0;
+    return Math.min(100, Math.round((kr.current / kr.target) * 100));
+  }
+  if (kr.current <= kr.target) return 100;
+  const worst = kr.target + 5;
+  return Math.max(0, Math.round(100 - ((kr.current - kr.target) / (worst - kr.target)) * 100));
+}
+
+export function statusEmoji(pct: number): string {
+  if (pct >= 80) return '🟢';
+  if (pct >= 60) return '🟡';
+  return '🔴';
+}
+
+export function objectiveScore(obj: Objective): number {
+  return Math.round(obj.keyResults.reduce((sum, kr) => sum + achievementPct(kr), 0) / obj.keyResults.length);
+}
+
+export function overallProgramScore(objectives: Objective[]): number {
+  return Math.round(objectives.reduce((sum, o) => sum + objectiveScore(o), 0) / objectives.length);
+}
+
+export function overallStatusLabel(score: number): { label: string; emoji: string } {
+  if (score >= 80) return { label: 'On Track', emoji: '🟢' };
+  if (score >= 60) return { label: 'Atenção', emoji: '🟡' };
+  return { label: 'Crítico', emoji: '🔴' };
+}
+
+export interface Benefit {
+  id: string;
+  label: string;
+  impact: 'Alta' | 'Média' | 'Média/Alta' | 'Baixa';
+}
+
+const BENEFITS_KEY = 'lg-dashboard:okr-benefits';
+
+const defaultBenefits: Benefit[] = [
+  { id: 'b1', label: 'Redução de retrabalho', impact: 'Alta' },
+  { id: 'b2', label: 'Menor custo operacional RH', impact: 'Alta' },
+  { id: 'b3', label: 'Redução de riscos trabalhistas', impact: 'Alta' },
+  { id: 'b4', label: 'Maior produtividade do RH', impact: 'Alta' },
+  { id: 'b5', label: 'Melhor experiência do colaborador', impact: 'Média/Alta' },
+  { id: 'b6', label: 'Decisão baseada em dados', impact: 'Alta' },
+  { id: 'b7', label: 'Escalabilidade operacional', impact: 'Alta' },
+];
+
+export function loadBenefits(): Benefit[] {
+  try {
+    const saved = localStorage.getItem(BENEFITS_KEY);
+    return saved ? JSON.parse(saved) : defaultBenefits;
+  } catch {
+    return defaultBenefits;
+  }
+}
+
+export function saveBenefits(benefits: Benefit[]) {
+  try {
+    localStorage.setItem(BENEFITS_KEY, JSON.stringify(benefits));
+  } catch {
+    // localStorage indisponível
+  }
+}
+
+export function generateExecutiveDraft(objectives: Objective[]): string {
+  const score = overallProgramScore(objectives);
+  const { label } = overallStatusLabel(score);
+  const behind = objectives.filter((o) => objectiveScore(o) < 80);
+
+  let msg = `O Projeto LG encontra-se com ${score}% de progresso geral (${label}).`;
+  if (behind.length === 0) {
+    msg += ' Todos os pilares estão dentro da meta.';
+  } else {
+    msg += ` Os principais focos de atenção estão em: ${behind.map((o) => o.pillar).join(', ')}.`;
+  }
+  return msg;
+}
+
+export function loadExecutiveMessage(objectives: Objective[]): string {
+  try {
+    const saved = localStorage.getItem(EXEC_MESSAGE_KEY);
+    return saved || generateExecutiveDraft(objectives);
+  } catch {
+    return generateExecutiveDraft(objectives);
+  }
+}
+
+export function saveExecutiveMessage(message: string) {
+  try {
+    localStorage.setItem(EXEC_MESSAGE_KEY, message);
+  } catch {
+    // localStorage indisponível
+  }
+}
 
 export interface Snapshot {
-  date: string; // YYYY-MM-DD
-  completionRate: number;
-  riskExposure: number;
-  auditProgress: number;
+  date: string;
+  overall: number;
+  pillars: Record<string, number>;
 }
 
 export function loadHistory(): Snapshot[] {
   try {
-    const saved = localStorage.getItem(HISTORY_STORAGE_KEY);
+    const saved = localStorage.getItem(HISTORY_KEY);
     return saved ? JSON.parse(saved) : [];
   } catch {
     return [];
   }
 }
 
-export function saveSnapshot(snapshot: Snapshot) {
+export function saveSnapshot(objectives: Objective[]) {
   try {
-    const history = loadHistory().filter((s) => s.date !== snapshot.date);
+    const today = new Date().toISOString().slice(0, 10);
+    const pillars: Record<string, number> = {};
+    objectives.forEach((o) => {
+      pillars[o.pillar] = objectiveScore(o);
+    });
+    const snapshot: Snapshot = { date: today, overall: overallProgramScore(objectives), pillars };
+    const history = loadHistory().filter((s) => s.date !== today);
     history.push(snapshot);
     history.sort((a, b) => a.date.localeCompare(b.date));
-    // guarda só os últimos 12 snapshots (ex.: ~3 meses se salvo semanalmente)
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.slice(-12)));
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(-12)));
   } catch {
     // localStorage indisponível
   }
 }
 
-// --- Métricas centrais, recalculadas a partir dos dados reais ---
-
-export function computeCoreMetrics() {
-  const modules = loadModules();
-  const totalModules = modules.length;
-  const completedModules = modules.filter((m) => m.status === 'completed').length;
-  const completionRate = totalModules ? Math.round((completedModules / totalModules) * 100) : 0;
-
-  const risks = loadRisks();
-  const riskMetrics = getRiskMetrics(risks);
-  const openRisks = risks.filter((r) => r.status !== 'resolved');
-  const riskExposureRaw = openRisks.reduce((sum, r) => sum + severityWeight[r.impact], 0);
-  const worstCase = risks.length * severityWeight.critical;
-  const riskExposureIndex = worstCase ? Math.round((riskExposureRaw / worstCase) * 100) : 0;
-
-  const auditActions = loadAuditActions();
-  const auditProgress = auditActions.length
-    ? Math.round((auditActions.filter((a) => a.status === 'completed').length / auditActions.length) * 100)
-    : 0;
-  const blockedAudit = auditActions.filter((a) => a.status === 'blocked').length;
-
-  const today = new Date();
-  const overdueAudit = auditActions.filter(
-    (a) => a.status !== 'completed' && a.endDate && new Date(a.endDate) < today
-  ).length;
-
-  return {
-    modules,
-    totalModules,
-    completedModules,
-    completionRate,
-    risks,
-    riskMetrics,
-    openRisks,
-    riskExposureIndex,
-    auditActions,
-    auditProgress,
-    blockedAudit,
-    overdueAudit,
-  };
-}
-
-// --- Os 3 Objetivos com seus Key Results ---
-
-export function computeObjectives(): Objective[] {
-  const core = computeCoreMetrics();
-  const manual = loadManualMetrics();
-
-  return [
-    {
-      id: 'o1',
-      title: 'Entregar a implementação do sistema de RH LG com segurança e conformidade',
-      keyResults: [
-        { id: 'o1kr1', label: 'Módulos implantados', current: core.completionRate, target: 100, unit: '%', automatic: true, higherIsBetter: true },
-        { id: 'o1kr2', label: 'Riscos críticos abertos', current: core.riskMetrics.critical, target: 0, unit: 'un', automatic: true, higherIsBetter: false },
-        { id: 'o1kr3', label: 'Ações de auditoria concluídas', current: core.auditProgress, target: 100, unit: '%', automatic: true, higherIsBetter: true },
-      ],
-    },
-    {
-      id: 'o2',
-      title: 'Garantir adoção do sistema pelos usuários finais',
-      keyResults: [
-        { id: 'o2kr1', label: 'Satisfação da equipe de RH (0-10)', current: manual.satisfaction, target: 8, unit: 'un', automatic: false, higherIsBetter: true },
-        { id: 'o2kr2', label: 'Chamados de suporte (pós-lançamento)', current: manual.supportTickets, target: 5, unit: 'un', automatic: false, higherIsBetter: false },
-      ],
-    },
-    {
-      id: 'o3',
-      title: 'Manter governança e ritmo do programa',
-      keyResults: [
-        { id: 'o3kr1', label: 'Ações de auditoria bloqueadas', current: core.blockedAudit, target: 0, unit: 'un', automatic: true, higherIsBetter: false },
-        { id: 'o3kr2', label: 'Ações de auditoria em atraso', current: core.overdueAudit, target: 0, unit: 'un', automatic: true, higherIsBetter: false },
-      ],
-    },
-  ];
-}
-
-// Progresso de 0 a 100% de um Key Result em relação à meta, considerando
-// se "maior é melhor" (ex.: % implantado) ou "menor é melhor" (ex.: riscos abertos)
-export function keyResultProgress(kr: KeyResult): number {
-  if (kr.higherIsBetter) {
-    if (kr.target === 0) return kr.current === 0 ? 100 : 0;
-    return Math.min(100, Math.round((kr.current / kr.target) * 100));
-  }
-  // menor é melhor: quanto mais perto de 0 (ou da meta), melhor
-  if (kr.current <= kr.target) return 100;
-  // penaliza progressivamente conforme se afasta da meta
-  const worst = kr.target + 5; // 5 unidades acima da meta já conta como 0%
-  return Math.max(0, Math.round(100 - ((kr.current - kr.target) / (worst - kr.target)) * 100));
-}
-
-// --- KPI novo 1: Aderência ao Cronograma ---
+// ============================================================================
+// KPIs operacionais adicionais - complementam a estrutura do PDF com dados
+// que já são 100% automáticos a partir de Módulos, Riscos e Auditoria.
+// ============================================================================
 
 export function computeScheduleAdherence() {
-  const { modules, auditActions } = computeCoreMetrics();
+  const modules = loadModules();
+  const auditActions = loadAuditActions();
   const today = new Date();
   let onTime = 0;
   let total = 0;
 
-  modules.forEach((m: Module) => {
+  modules.forEach((m) => {
     if (!m.startDate || !m.endDate) return;
     total++;
     const isDone = m.status === 'completed';
@@ -195,7 +345,7 @@ export function computeScheduleAdherence() {
     if (!isLate) onTime++;
   });
 
-  auditActions.forEach((a: AuditAction) => {
+  auditActions.forEach((a) => {
     if (!a.endDate) return;
     total++;
     const isDone = a.status === 'completed';
@@ -203,18 +353,13 @@ export function computeScheduleAdherence() {
     if (!isLate) onTime++;
   });
 
-  return {
-    onTime,
-    total,
-    rate: total ? Math.round((onTime / total) * 100) : 100,
-  };
+  return { onTime, total, rate: total ? Math.round((onTime / total) * 100) : 100 };
 }
-
-// --- KPI novo 2: Carga de Trabalho por Responsável ---
 
 export function computeWorkload() {
   const team = loadTeamMembers();
-  const { risks, auditActions } = computeCoreMetrics();
+  const risks = loadRisks();
+  const auditActions = loadAuditActions();
 
   return team
     .map((member) => {
@@ -222,45 +367,9 @@ export function computeWorkload() {
       const activeAuditCount = auditActions.filter(
         (a) => a.responsible.includes(member.name) && a.status !== 'completed'
       ).length;
-      return {
-        name: member.name,
-        openRisksCount,
-        activeAuditCount,
-        total: openRisksCount + activeAuditCount,
-      };
+      return { name: member.name, openRisksCount, activeAuditCount, total: openRisksCount + activeAuditCount };
     })
     .filter((w) => w.total > 0)
     .sort((a, b) => b.total - a.total);
 }
 
-// --- Resumo executivo narrativo, gerado a partir dos dados ---
-
-export function generateExecutiveSummary(): string {
-  const objectives = computeObjectives();
-  const core = computeCoreMetrics();
-
-  const onTrack = objectives.filter((o) => o.keyResults.every((kr) => keyResultProgress(kr) >= 70)).length;
-  const atRisk = objectives.length - onTrack;
-
-  const parts: string[] = [];
-  parts.push(
-    `${onTrack} de ${objectives.length} objetivos estão dentro da meta (≥70% de progresso nos key results)${
-      atRisk > 0 ? `, e ${atRisk} precisa${atRisk > 1 ? 'm' : ''} de atenção` : ''
-    }.`
-  );
-
-  if (core.riskMetrics.critical > 0) {
-    parts.push(`Há ${core.riskMetrics.critical} risco(s) crítico(s) ainda aberto(s).`);
-  }
-  if (core.overdueAudit > 0) {
-    parts.push(`${core.overdueAudit} ação(ões) de auditoria estão com prazo vencido.`);
-  }
-  if (core.blockedAudit > 0) {
-    parts.push(`${core.blockedAudit} ação(ões) de auditoria estão bloqueadas.`);
-  }
-  if (core.riskMetrics.critical === 0 && core.overdueAudit === 0 && core.blockedAudit === 0) {
-    parts.push('Nenhum bloqueio crítico identificado no momento.');
-  }
-
-  return parts.join(' ');
-}

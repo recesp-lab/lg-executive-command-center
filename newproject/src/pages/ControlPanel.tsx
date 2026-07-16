@@ -3,7 +3,8 @@ import React from 'react';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
 import { loadModules } from '@/data/modulesData';
 import { loadAuditActions } from '@/data/auditData';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { chartColors, chartTick } from '@/data/chartColors';
 
 interface MonthlySnapshot {
   mes: string;
@@ -156,12 +157,14 @@ export default function ControlPanel() {
               margin={{ left: 40 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" width={180} tick={{ fontSize: 11 }} />
+              <XAxis type="number" tick={chartTick} />
+              <YAxis type="category" dataKey="name" width={180} tick={chartTick} />
               <Tooltip />
-              <Legend />
-              <Bar dataKey="Meta" fill="#cbd5e1" radius={[0, 4, 4, 0]} />
-              <Bar dataKey="Atual" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Bar dataKey="Meta" fill={chartColors.grayLight} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="Atual" fill={chartColors.primary} radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="Atual" position="right" style={{ fontSize: 11, fill: '#374151' }} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

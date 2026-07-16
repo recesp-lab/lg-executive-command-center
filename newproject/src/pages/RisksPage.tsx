@@ -17,6 +17,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
+import { chartColors, chartTick } from '@/data/chartColors';
 
 const STORAGE_KEY = RISKS_STORAGE_KEY;
 
@@ -470,6 +471,7 @@ export default function RisksPage() {
                     name="Probabilidade"
                     domain={[0.5, 3.5]}
                     ticks={[1, 2, 3]}
+                    tick={chartTick}
                     tickFormatter={(v) => ({ 1: 'Baixa', 2: 'Média', 3: 'Alta' }[Math.round(v)] || '')}
                     label={{ value: 'Probabilidade', position: 'insideBottom', offset: -10, fontSize: 12 }}
                   />
@@ -479,6 +481,7 @@ export default function RisksPage() {
                     name="Impacto"
                     domain={[0.5, 3.5]}
                     ticks={[1, 2, 3]}
+                    tick={chartTick}
                     tickFormatter={(v) => ({ 1: 'Baixo', 2: 'Médio', 3: 'Crítico' }[Math.round(v)] || '')}
                     label={{ value: 'Impacto', angle: -90, position: 'insideLeft', fontSize: 12 }}
                   />
@@ -497,12 +500,16 @@ export default function RisksPage() {
                       );
                     }}
                   />
-                  <Scatter data={scatterData} fill="#8884d8">
+                  <Scatter data={scatterData} fill={chartColors.primary}>
                     {scatterData.map((entry) => (
                       <Cell
                         key={entry.id}
                         fill={
-                          entry.impact === 'critical' ? '#ef4444' : entry.impact === 'medium' ? '#eab308' : '#22c55e'
+                          entry.impact === 'critical'
+                            ? chartColors.red
+                            : entry.impact === 'medium'
+                            ? chartColors.amber
+                            : chartColors.green
                         }
                       />
                     ))}

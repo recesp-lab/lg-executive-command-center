@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
+import { chartColors, chartTick } from '@/data/chartColors';
 import {
   computeStatusGeral,
   computeObjectives,
@@ -257,9 +258,9 @@ export default function OKRs() {
           <ResponsiveContainer width="100%" height={320}>
             <RadarChart data={objectives.map((obj) => ({ pillar: obj.pillar, score: objectiveScore(obj) }))}>
               <PolarGrid />
-              <PolarAngleAxis dataKey="pillar" tick={{ fontSize: 11 }} />
-              <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-              <Radar name="Score" dataKey="score" stroke="#1e3a8a" fill="#3b82f6" fillOpacity={0.4} />
+              <PolarAngleAxis dataKey="pillar" tick={chartTick} />
+              <PolarRadiusAxis domain={[0, 100]} tick={chartTick} />
+              <Radar name="Score" dataKey="score" stroke={chartColors.primary} fill={chartColors.primary} fillOpacity={0.35} />
               <Tooltip formatter={(value: number) => [`${value}%`, 'Score']} />
             </RadarChart>
           </ResponsiveContainer>

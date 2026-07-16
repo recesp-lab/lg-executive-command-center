@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { loadTeamMembers } from '@/data/teamData';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { chartColors, chartFont } from '@/data/chartColors';
 
 interface AuditAction {
   id: string;
@@ -454,23 +455,22 @@ export default function AuditPlan() {
             <PieChart>
               <Pie
                 data={[
-                  { name: 'Concluídas', value: stats.completed, color: '#22c55e' },
-                  { name: 'Em Progresso', value: stats.inProgress, color: '#3b82f6' },
-                  { name: 'Planejadas', value: stats.planned, color: '#eab308' },
-                  { name: 'Bloqueadas', value: stats.blocked, color: '#ef4444' },
+                  { name: 'Concluídas', value: stats.completed, color: chartColors.green },
+                  { name: 'Em Progresso', value: stats.inProgress, color: chartColors.primary },
+                  { name: 'Planejadas', value: stats.planned, color: chartColors.amber },
+                  { name: 'Bloqueadas', value: stats.blocked, color: chartColors.red },
                 ].filter((d) => d.value > 0)}
                 dataKey="value"
                 nameKey="name"
                 innerRadius={60}
                 outerRadius={100}
                 paddingAngle={2}
-                label={({ name, value }) => `${name}: ${value}`}
               >
                 {[
-                  { name: 'Concluídas', value: stats.completed, color: '#22c55e' },
-                  { name: 'Em Progresso', value: stats.inProgress, color: '#3b82f6' },
-                  { name: 'Planejadas', value: stats.planned, color: '#eab308' },
-                  { name: 'Bloqueadas', value: stats.blocked, color: '#ef4444' },
+                  { name: 'Concluídas', value: stats.completed, color: chartColors.green },
+                  { name: 'Em Progresso', value: stats.inProgress, color: chartColors.primary },
+                  { name: 'Planejadas', value: stats.planned, color: chartColors.amber },
+                  { name: 'Bloqueadas', value: stats.blocked, color: chartColors.red },
                 ]
                   .filter((d) => d.value > 0)
                   .map((entry) => (
@@ -478,7 +478,7 @@ export default function AuditPlan() {
                   ))}
               </Pie>
               <Tooltip />
-              <Legend />
+              <Legend wrapperStyle={chartFont} />
             </PieChart>
           </ResponsiveContainer>
         </div>

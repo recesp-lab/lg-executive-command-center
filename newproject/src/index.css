@@ -253,3 +253,14 @@
     }
   }
 }
+/* ============================================================
+   Padronização tipográfica: uma única família de fonte no app
+   inteiro, igual à usada no menu lateral (Dashboard, Riscos,
+   Auditoria, etc.). Os tamanhos de título continuam diferentes
+   por seção - só a fonte passa a ser sempre a mesma, em vez de
+   misturar Playfair Display com a fonte padrão.
+   ============================================================ */
+h1, h2, h3, h4, h5, h6,
+[style*="Playfair"] {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
+}

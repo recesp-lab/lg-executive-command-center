@@ -2,6 +2,7 @@ import { Users, Mail, Trash2, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { chartTick } from '@/data/chartColors';
 
 interface TeamMember {
   id: string;
@@ -238,8 +239,8 @@ export default function TeamMembers() {
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={departmentChartData} margin={{ bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="department" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
-            <YAxis allowDecimals={false} />
+            <XAxis dataKey="department" tick={chartTick} angle={-20} textAnchor="end" height={60} />
+            <YAxis allowDecimals={false} tick={chartTick} />
             <Tooltip />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {departmentChartData.map((entry) => (

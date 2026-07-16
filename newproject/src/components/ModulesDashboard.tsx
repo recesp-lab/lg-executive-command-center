@@ -1,6 +1,7 @@
 import { CheckCircle2, AlertCircle, Clock, XCircle, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { chartColors, chartFont } from '@/data/chartColors';
 
 type ModuleStatus = 'completed' | 'in-progress' | 'not-started' | 'cancelled';
 
@@ -42,7 +43,7 @@ const defaultModules: Module[] = [
 const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: string; icon: typeof CheckCircle2; bgLight: string; border: string; text: string }> = {
   completed: {
     color: 'bg-blue-500',
-    hex: '#3b82f6',
+    hex: '#3B82F6', // igual ao Tailwind bg-blue-500 usado no card acima, para o card e a fatia da rosca baterem exatamente
     label: 'IMPLANTADOS (base sólida)',
     icon: CheckCircle2,
     bgLight: 'bg-blue-50',
@@ -51,7 +52,7 @@ const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: st
   },
   'in-progress': {
     color: 'bg-yellow-400',
-    hex: '#facc15',
+    hex: '#FACC15', // igual ao Tailwind bg-yellow-400 usado no card acima
     label: 'EM ANDAMENTO (alto volume crítico)',
     icon: Clock,
     bgLight: 'bg-yellow-50',
@@ -60,7 +61,7 @@ const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: st
   },
   'not-started': {
     color: 'bg-red-500',
-    hex: '#ef4444',
+    hex: chartColors.red, // já coincide com o Tailwind bg-red-500
     label: 'NÃO INICIADO',
     icon: AlertCircle,
     bgLight: 'bg-red-50',
@@ -69,7 +70,7 @@ const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: st
   },
   cancelled: {
     color: 'bg-gray-500',
-    hex: '#6b7280',
+    hex: chartColors.gray, // já coincide com o Tailwind bg-gray-500
     label: 'CANCELADOS',
     icon: XCircle,
     bgLight: 'bg-gray-100',
@@ -178,14 +179,13 @@ export default function ModulesDashboard() {
               innerRadius={60}
               outerRadius={100}
               paddingAngle={2}
-              label={({ name, value }) => `${name}: ${value}`}
             >
               {donutData.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip />
-            <Legend />
+            <Legend wrapperStyle={chartFont} />
           </PieChart>
         </ResponsiveContainer>
       </div>

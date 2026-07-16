@@ -228,13 +228,18 @@ export default function OKRs() {
                   <tbody>{obj.keyResults.map(renderKrRow)}</tbody>
                 </table>
                 <div className="p-4 bg-gray-50 border-t border-border flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground">Score OKR</span>
+                  <div>
+                    <span className="text-sm font-semibold text-foreground block">Score OKR</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Média de atingimento dos indicadores (meta vs. atual) — não é % de tarefas concluídas
+                    </span>
+                  </div>
                   <span
                     className={`text-lg font-bold ${
                       score > 80 ? 'text-green-600' : score >= 60 ? 'text-yellow-600' : 'text-red-600'
                     }`}
                   >
-                    {score}% concluído
+                    {score}%
                   </span>
                 </div>
               </div>

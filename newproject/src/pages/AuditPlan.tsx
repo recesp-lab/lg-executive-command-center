@@ -489,7 +489,7 @@ export default function AuditPlan() {
             const sectionActions = auditActions.filter((a) => a.section === section);
             return (
               <div key={section} className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                <div className="px-6 py-4" style={{ backgroundColor: chartColors.primary }}>
                   <h2 className="text-lg font-bold text-white">{section}</h2>
                 </div>
 

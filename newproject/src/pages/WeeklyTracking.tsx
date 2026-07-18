@@ -3,6 +3,7 @@ import { Calendar, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { loadTeamMembers } from '@/data/teamData';
+import { markUpdated } from '@/data/lastUpdated';
 
 interface WeeklyUpdate {
   id: string;
@@ -104,6 +105,7 @@ export default function WeeklyTracking() {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updates));
+      markUpdated();
     } catch {
       // localStorage indisponível (ex.: modo privado) - segue apenas em memória
     }
@@ -471,6 +473,7 @@ export default function WeeklyTracking() {
               onClick={() => {
                 try {
                   localStorage.setItem(NOTES_STORAGE_KEY, notes);
+                  markUpdated();
                   setNotesSaved(true);
                   setTimeout(() => setNotesSaved(false), 2000);
                 } catch {

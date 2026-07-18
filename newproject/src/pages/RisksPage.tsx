@@ -18,6 +18,7 @@ import {
   Cell,
 } from 'recharts';
 import { chartColors, chartTick } from '@/data/chartColors';
+import { markUpdated } from '@/data/lastUpdated';
 
 const STORAGE_KEY = RISKS_STORAGE_KEY;
 
@@ -48,6 +49,7 @@ export default function RisksPage() {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(risks));
+      markUpdated();
     } catch {
       // localStorage indisponível - segue apenas em memória
     }

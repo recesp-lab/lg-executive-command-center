@@ -1,17 +1,11 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import RiskSemaphore from '@/components/RiskSemaphore';
 import ModulesDashboard from '@/components/ModulesDashboard';
-import ProjectHealthBanner from '@/components/ProjectHealthBanner';
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
-import { loadTeamMembers } from '@/data/teamData';
-import { loadModules } from '@/data/modulesData';
+import { loadLastUpdated } from '@/data/lastUpdated';
 import { useLocation } from 'wouter';
-
-// Data da última revisão de conteúdo do dashboard.
-// Atualize esta constante sempre que os números/dados forem revisados.
-const LAST_UPDATED = '06/07/2026';
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -19,47 +13,79 @@ export default function Home() {
   // Lê os mesmos riscos (incluindo edições salvas) usados na página de
   // Riscos, então este número nunca fica dessincronizado.
   const riskMetrics = getRiskMetrics(loadRisks());
+const teamMembers = JSON.parse(
+  localStorage.getItem('lg-dashboard:team-members') || '[]'
+);
 
-  // Antes: JSON.parse(localStorage.getItem(...) || '[]') direto, o que
-  // zerava equipe e módulos no primeiro acesso de um navegador novo.
-  // Agora os dois usam um loader com fallback garantido.
-  const teamMembers = loadTeamMembers();
-  const modules = loadModules();
+const modules = JSON.parse(
+  localStorage.getItem('lg-dashboard:modules') || '[]'
+);
+  
+const completedModules = modules.filter(
+  (m: any) => m.status === 'completed'
+).length;
 
-  const completedModules = modules.filter((m) => m.status === 'completed').length;
+const completionPercentage =
+  modules.length > 0
+    ? Math.round(
+        (completedModules / modules.length) * 100
+      )
+    : 0;
+  
+const executiveStatus =
+  riskMetrics.critical >= 3
+    ? 'red'
+    : riskMetrics.critical >= 1
+    ? 'yellow'
+    : 'green';
+const projectDeadline = new Date('2026-08-31');
 
-  const completionPercentage =
-    modules.length > 0 ? Math.round((completedModules / modules.length) * 100) : 0;
+const today = new Date();
 
-  const projectDeadline = new Date('2026-08-31');
-  const today = new Date();
-  const daysToDeadline = Math.max(
-    0,
-    Math.ceil((projectDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  );
+const daysToDeadline = Math.max(
+  0,
+  Math.ceil(
+    (projectDeadline.getTime() - today.getTime()) /
+      (1000 * 60 * 60 * 24)
+  )
+);
 
+// Antes: uma data fixa escrita no código (const LAST_UPDATED = '06/07/2026'),
+// que nunca mudava sozinha. Agora reflete de verdade a última vez que
+// qualquer dado foi editado em qualquer página do dashboard.
+const lastUpdated = loadLastUpdated();
+const lastUpdatedLabel = lastUpdated
+  ? lastUpdated.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  : 'sem edições registradas ainda';
+  
   const quickStats = [
-    {
-      icon: TrendingUp,
-      label: 'Taxa de Conclusão',
-      value: `${completionPercentage}%`,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      icon: Users,
-      label: 'Membros da Equipe',
-      value: String(teamMembers.length),
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
-    {
-      icon: Calendar,
-      label: 'Dias até Deadline',
-      value: String(daysToDeadline),
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-    },
+{
+  icon: TrendingUp,
+  label: 'Taxa de Conclusão',
+  value: `${completionPercentage}%`,
+  color: 'text-blue-600',
+  bgColor: 'bg-blue-50',
+},
+{
+  icon: Users,
+  label: 'Membros da Equipe',
+  value: String(teamMembers.length),
+  color: 'text-green-600',
+  bgColor: 'bg-green-50',
+},
+{
+  icon: Calendar,
+  label: 'Dias até Deadline',
+  value: String(daysToDeadline),
+  color: 'text-purple-600',
+  bgColor: 'bg-purple-50',
+},
     {
       icon: AlertCircle,
       label: 'Riscos Críticos',
@@ -91,7 +117,12 @@ export default function Home() {
       <div className="p-8">
         {/* Hero Section */}
         <div className="mb-8">
-          <div className="relative rounded-lg overflow-hidden mb-4 h-48 bg-gradient-to-br from-blue-900 to-blue-700">
+          <div className="relative rounded-lg overflow-hidden mb-4">
+            <img
+              src="/manus-storage/hero-dashboard_5313de43.png"
+              alt="Hero Dashboard"
+              className="w-full h-48 object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-700/60 flex items-center">
               <div className="px-8">
                 <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -105,15 +136,48 @@ export default function Home() {
           </div>
 
           <p className="text-xs text-muted-foreground mb-6 text-right">
-            Última atualização de dados: {LAST_UPDATED}
+            Última atualização de dados: {lastUpdatedLabel}
           </p>
 
-          {/* Status Executivo - agora vem de uma fonte única, compartilhada
-              com Riscos, Auditoria e o bloco "Status Geral do Programa" dos OKRs */}
-          <div className="mb-6">
-            <ProjectHealthBanner />
-          </div>
+<div className="mb-6">
+  <div
+    className={`p-6 rounded-lg border-2 ${
+      executiveStatus === 'green'
+        ? 'bg-green-50 border-green-300'
+        : executiveStatus === 'yellow'
+        ? 'bg-yellow-50 border-yellow-300'
+        : 'bg-red-50 border-red-300'
+    }`}
+  >
+    <div className="flex items-center gap-4">
+      <div className="text-4xl">
+        {executiveStatus === 'green'
+          ? '🟢'
+          : executiveStatus === 'yellow'
+          ? '🟡'
+          : '🔴'}
+      </div>
 
+      <div>
+        <h2 className="font-bold text-lg">
+          Status Executivo do Projeto
+        </h2>
+
+        <p>
+          {executiveStatus === 'green'
+            ? 'Projeto Saudável'
+            : executiveStatus === 'yellow'
+            ? 'Projeto em Atenção'
+            : 'Projeto Crítico'}
+        </p>
+
+        <p className="text-sm mt-1">
+          Riscos Críticos: {riskMetrics.critical}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
           {/* Quick Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickStats.map((stat, index) => {
@@ -198,40 +262,45 @@ export default function Home() {
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Prazo: 01/09/2026</p>
-              </div>
-            </div>
-          </div>
+ <p className="text-xs text-muted-foreground mt-1">Prazo: 01/09/2026</p>
+</div>
+</div>
+</div>
 
-          {/* Key Metrics */}
+{/* Key Metrics */}
           <div className="bg-white rounded-lg border border-border shadow-sm p-6">
             <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
               Indicadores-Chave
             </h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground font-semibold mb-2">
-                  Saúde do Programa
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  {completionPercentage}%
-                </p>
-                <p className="text-xs text-blue-600 font-semibold mt-1">
-                  % de módulos concluídos
-                </p>
-              </div>
-              <div className="p-4 bg-secondary rounded-lg">
-                <p className="text-xs text-muted-foreground font-semibold mb-2">
-                  Riscos Totais
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  {riskMetrics.critical + riskMetrics.medium + riskMetrics.low}
-                </p>
-                <p className="text-xs text-red-600 font-semibold mt-1">
-                  Monitorados pelo programa
-                </p>
-              </div>
-            </div>
+
+  <div className="p-4 bg-secondary rounded-lg">
+    <p className="text-xs text-muted-foreground font-semibold mb-2">
+      Saúde do Programa
+    </p>
+
+    <p className="text-2xl font-bold text-foreground">
+      {completionPercentage}%
+    </p>
+
+    <p className="text-xs text-blue-600 font-semibold mt-1">
+      % de módulos concluídos
+    </p>
+  </div>
+  <div className="p-4 bg-secondary rounded-lg">
+    <p className="text-xs text-muted-foreground font-semibold mb-2">
+      Riscos Totais
+    </p>
+
+    <p className="text-2xl font-bold text-foreground">
+      {riskMetrics.critical + riskMetrics.medium + riskMetrics.low}
+    </p>
+
+    <p className="text-xs text-red-600 font-semibold mt-1">
+      Monitorados pelo programa
+    </p>
+  </div>
+</div>
           </div>
         </div>
 

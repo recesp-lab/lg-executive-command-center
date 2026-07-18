@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { loadTeamMembers } from '@/data/teamData';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { chartColors, chartFont } from '@/data/chartColors';
+import { markUpdated } from '@/data/lastUpdated';
 
 interface AuditAction {
   id: string;
@@ -21,7 +22,6 @@ interface AuditAction {
 const AUDIT_STORAGE_KEY = 'lg-dashboard:audit-actions';
 
 const defaultAuditActions: AuditAction[] = [
-    // 3.1 Exposição de dados sensíveis (Backup Datamace)
     {
       id: '3.1.1',
       activity: 'Eliminar o backup da rede compartilhada',
@@ -67,8 +67,6 @@ const defaultAuditActions: AuditAction[] = [
       responsible: ['Denis Soares Dias', 'Dagmar Orlando Monteiro Duarte'],
       status: 'planned',
     },
-
-    // 3.2 Excesso de privilégios (Superusuários)
     {
       id: '3.2.1',
       activity: 'Revogar acessos de 18 consultores LG sem vínculo',
@@ -123,8 +121,6 @@ const defaultAuditActions: AuditAction[] = [
       responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
-
-    // 3.3 Falta de segregação de funções (SoD)
     {
       id: '3.3.1',
       activity: 'Suspender a gestão direta de acessos por parte do RH',
@@ -170,8 +166,6 @@ const defaultAuditActions: AuditAction[] = [
       responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
-
-    // 3.4 Acesso fora de ambiente seguro
     {
       id: '3.4.1',
       activity: 'Bloquear acessos externos sem VPN',
@@ -217,8 +211,6 @@ const defaultAuditActions: AuditAction[] = [
       responsible: ['Silvia Melo Neves', 'Denis Soares Dias'],
       status: 'planned',
     },
-
-    // 4. Ações estruturais complementares
     {
       id: '4.1',
       activity: 'Implementação de governança de identidade e acesso (IAM)',
@@ -279,6 +271,7 @@ export default function AuditPlan() {
   useEffect(() => {
     try {
       localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(auditActions));
+      markUpdated();
     } catch {
       // localStorage indisponível - segue apenas em memória
     }
@@ -287,9 +280,6 @@ export default function AuditPlan() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<AuditAction | null>(null);
 
-  // Antes: JSON.parse(localStorage.getItem(...) || '[]') direto, o que
-  // deixava o seletor de responsáveis vazio no primeiro acesso de um
-  // navegador novo. Agora usa o loader com fallback garantido.
   const teamMembers = loadTeamMembers();
 
   const startEdit = (action: AuditAction) => {

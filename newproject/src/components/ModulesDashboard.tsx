@@ -2,6 +2,7 @@ import { CheckCircle2, AlertCircle, Clock, XCircle, Plus, Trash2 } from 'lucide-
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { chartColors, chartFont } from '@/data/chartColors';
+import { markUpdated } from '@/data/lastUpdated';
 
 type ModuleStatus = 'completed' | 'in-progress' | 'not-started' | 'cancelled';
 
@@ -100,6 +101,7 @@ export default function ModulesDashboard() {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(modules));
+      markUpdated();
     } catch {
       // localStorage indisponível - segue apenas em memória
     }

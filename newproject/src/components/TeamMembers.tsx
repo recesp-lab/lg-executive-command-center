@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { chartTick } from '@/data/chartColors';
+import { markUpdated } from '@/data/lastUpdated';
 
 interface TeamMember {
   id: string;
@@ -70,6 +71,7 @@ export default function TeamMembers() {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(teamMembers));
+      markUpdated();
     } catch {
       // localStorage indisponível - segue apenas em memória
     }

@@ -68,7 +68,7 @@ const lastUpdatedLabel = lastUpdated
 {
   icon: TrendingUp,
   label: 'Taxa de Conclusão',
-  value: `${completionPercentage}%`,
+  value: ${completionPercentage}%,
   color: 'text-blue-600',
   bgColor: 'bg-blue-50',
 },
@@ -105,7 +105,7 @@ const lastUpdatedLabel = lastUpdated
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `projeto-lg-dashboard-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = projeto-lg-dashboard-${new Date().toISOString().slice(0, 10)}.json;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -115,26 +115,12 @@ const lastUpdatedLabel = lastUpdated
   return (
     <DashboardLayout currentPage="dashboard">
       <div className="p-8">
-        {/* Hero Section */}
+        {/* Header removido: o título "Projeto LG / Dashboard Executivo" já
+            aparece no cabeçalho do sidebar (DashboardLayout), então este
+            bloco era redundante -- e a imagem de fundo estava com o caminho
+            quebrado, fazendo o navegador exibir o texto alt="Hero Dashboard"
+            no lugar dela. */}
         <div className="mb-8">
-          <div className="relative rounded-lg overflow-hidden mb-4">
-            <img
-              src="/manus-storage/hero-dashboard_5313de43.png"
-              alt="Hero Dashboard"
-              className="w-full h-48 object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-700/60 flex items-center">
-              <div className="px-8">
-                <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  Projeto LG
-                </h1>
-                <p className="text-xl text-blue-100">
-                  Dashboard Executivo de Gestão de Projetos
-                </p>
-              </div>
-            </div>
-          </div>
-
           <p className="text-xs text-muted-foreground mb-6 text-right">
             Última atualização de dados: {lastUpdatedLabel}
           </p>
@@ -190,8 +176,8 @@ const lastUpdatedLabel = lastUpdated
                         {stat.label}
                       </p>
                     </div>
-                    <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                      <Icon className={`w-6 h-6 ${stat.color}`} />
+                    <div className={${stat.bgColor} p-3 rounded-lg}>
+                      <Icon className={w-6 h-6 ${stat.color}} />
                     </div>
                   </div>
                   <p className="text-3xl font-mono font-bold text-foreground">

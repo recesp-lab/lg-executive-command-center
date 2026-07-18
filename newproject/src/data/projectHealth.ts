@@ -38,10 +38,10 @@ export function computeProjectHealth(): ProjectHealth {
     reasons.push(`${riskMetrics.critical} risco${riskMetrics.critical > 1 ? 's' : ''} crítico${riskMetrics.critical > 1 ? 's' : ''} aberto${riskMetrics.critical > 1 ? 's' : ''}`);
   }
   if (blockedAudit > 0) {
-    reasons.push(`${blockedAudit} ação${blockedAudit > 1 ? 'ões' : ''} de auditoria bloqueada${blockedAudit > 1 ? 's' : ''}`);
+    reasons.push(`${blockedAudit} ${blockedAudit > 1 ? 'ações' : 'ação'} de auditoria bloqueada${blockedAudit > 1 ? 's' : ''}`);
   }
   if (overdueAudit > 0) {
-    reasons.push(`${overdueAudit} ação${overdueAudit > 1 ? 'ões' : ''} de auditoria em atraso`);
+    reasons.push(`${overdueAudit} ${overdueAudit > 1 ? 'ações' : 'ação'} de auditoria em atraso`);
   }
 
   let status: HealthStatus = 'green';

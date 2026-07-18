@@ -24,7 +24,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
       <aside className="w-64 bg-sidebar border-r border-sidebar-border shadow-sm flex flex-col">
-        <div className="p-6 border-b border-sidebar-border shrink-0">
+        <div className="p-4 border-b border-sidebar-border shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm shrink-0">
               LG
@@ -38,7 +38,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+        <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
@@ -46,7 +46,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
               <Link
                 key={item.id}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 block ${
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 block ${
                   isActive
                     ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
                     : 'text-sidebar-foreground hover:bg-secondary'
@@ -60,7 +60,7 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
         </nav>
 
         {/* Footer Info */}
-        <div className="p-4 border-t border-sidebar-border bg-sidebar shrink-0">
+        <div className="p-3 border-t border-sidebar-border bg-sidebar shrink-0">
           <div className="text-xs text-muted-foreground space-y-1">
             <p className="font-semibold text-foreground">Projeto LG</p>
             <p>Versão 1.0</p>

@@ -68,7 +68,7 @@ const lastUpdatedLabel = lastUpdated
 {
   icon: TrendingUp,
   label: 'Taxa de Conclusão',
-  value: ${completionPercentage}%,
+  value: `${completionPercentage}%`,
   color: 'text-blue-600',
   bgColor: 'bg-blue-50',
 },
@@ -105,7 +105,7 @@ const lastUpdatedLabel = lastUpdated
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = projeto-lg-dashboard-${new Date().toISOString().slice(0, 10)}.json;
+    a.download = `projeto-lg-dashboard-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -176,8 +176,8 @@ const lastUpdatedLabel = lastUpdated
                         {stat.label}
                       </p>
                     </div>
-                    <div className={${stat.bgColor} p-3 rounded-lg}>
-                      <Icon className={w-6 h-6 ${stat.color}} />
+                    <div className={`${stat.bgColor} p-3 rounded-lg`}>
+                      <Icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                   </div>
                   <p className="text-3xl font-mono font-bold text-foreground">

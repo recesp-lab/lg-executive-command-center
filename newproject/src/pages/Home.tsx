@@ -115,12 +115,22 @@ const lastUpdatedLabel = lastUpdated
   return (
     <DashboardLayout currentPage="dashboard">
       <div className="p-8">
-        {/* Header removido: o título "Projeto LG / Dashboard Executivo" já
-            aparece no cabeçalho do sidebar (DashboardLayout), então este
-            bloco era redundante -- e a imagem de fundo estava com o caminho
-            quebrado, fazendo o navegador exibir o texto alt="Hero Dashboard"
-            no lugar dela. */}
         <div className="mb-8">
+          {/* Hero Section: gradiente CSS puro, sem <img> externa -- a versão
+              anterior apontava para um arquivo inexistente
+              (/manus-storage/hero-dashboard_...png), e por isso o navegador
+              exibia o texto alt="Hero Dashboard" no lugar da imagem quebrada. */}
+          <div className="relative rounded-lg overflow-hidden mb-4 h-48 bg-gradient-to-r from-blue-900 to-blue-700 flex items-center">
+            <div className="px-8">
+              <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Projeto LG
+              </h1>
+              <p className="text-xl text-blue-100">
+                Dashboard Executivo de Gestão de Projetos
+              </p>
+            </div>
+          </div>
+
           <p className="text-xs text-muted-foreground mb-6 text-right">
             Última atualização de dados: {lastUpdatedLabel}
           </p>

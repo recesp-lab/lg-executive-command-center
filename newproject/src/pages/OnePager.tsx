@@ -26,6 +26,21 @@ import pptxgen from 'pptxgenjs';
 
 const impactWeight: Record<Risk['impact'], number> = { critical: 3, medium: 2, low: 1 };
 
+// Desenha a porcentagem centralizada dentro da espessura do anel da fatia,
+// igual ao padrão já usado em Módulos e Auditoria.
+const RADIAN = Math.PI / 180;
+const renderDonutLabel = (props: any) => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#ffffff" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700}>
+      {`${Math.round((percent ?? 0) * 100)}%`}
+    </text>
+  );
+};
+
 export default function OnePager() {
   const risks = loadRisks();
   const riskMetrics = getRiskMetrics(risks);
@@ -298,7 +313,7 @@ export default function OnePager() {
             <h2 className="text-sm font-bold text-foreground mb-2">Status dos Módulos</h2>
             <ResponsiveContainer width="100%" height={170}>
               <PieChart>
-                <Pie data={moduleDonutData} dataKey="value" nameKey="name" innerRadius={40} outerRadius={65} paddingAngle={2}>
+                <Pie data={moduleDonutData} dataKey="value" nameKey="name" innerRadius={40} outerRadius={65} paddingAngle={2} label={renderDonutLabel} labelLine={false}>
                   {moduleDonutData.map((d) => (
                     <Cell key={d.name} fill={d.color} />
                   ))}
@@ -323,7 +338,7 @@ export default function OnePager() {
             <h2 className="text-sm font-bold text-foreground mb-2">Status da Auditoria</h2>
             <ResponsiveContainer width="100%" height={150}>
               <PieChart>
-                <Pie data={auditDonutData} dataKey="value" nameKey="name" innerRadius={35} outerRadius={58} paddingAngle={2}>
+                <Pie data={auditDonutData} dataKey="value" nameKey="name" innerRadius={35} outerRadius={58} paddingAngle={2} label={renderDonutLabel} labelLine={false}>
                   {auditDonutData.map((d) => (
                     <Cell key={d.name} fill={d.color} />
                   ))}

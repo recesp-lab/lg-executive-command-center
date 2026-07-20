@@ -1,15 +1,16 @@
 import { ReactNode } from 'react';
-import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target, SlidersHorizontal, Shield, Activity } from 'lucide-react';
+import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target, SlidersHorizontal, Shield, Activity, FileText } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel' | 'cronograma';
+  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel' | 'cronograma' | 'onepager';
 }
 
 export default function DashboardLayout({ children, currentPage = 'dashboard' }: DashboardLayoutProps) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '/' },
+    { id: 'onepager', label: 'One Pager', icon: FileText, href: '/onepager' },
     { id: 'risks', label: 'Riscos', icon: AlertCircle, href: '/risks' },
     { id: 'weekly', label: 'Semanal', icon: Calendar, href: '/weekly' },
     { id: 'audit', label: 'Auditoria', icon: ClipboardList, href: '/audit' },

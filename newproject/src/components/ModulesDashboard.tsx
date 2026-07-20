@@ -88,6 +88,21 @@ const columnTitle: Record<ModuleStatus, string> = {
   cancelled: 'Cancelados',
 };
 
+// Desenha a porcentagem de cada fatia dentro da própria rosca (ponto médio
+// entre o raio interno e o externo). Passada como prop `label` do <Pie>.
+const RADIAN = Math.PI / 180;
+const renderPercentLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  if (!percent) return null;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700}>
+      {`${Math.round(percent * 100)}%`}
+    </text>
+  );
+};
+
 export default function ModulesDashboard() {
   const [modules, setModules] = useState<Module[]>(() => {
     try {
@@ -181,6 +196,8 @@ export default function ModulesDashboard() {
               innerRadius={60}
               outerRadius={100}
               paddingAngle={2}
+              label={renderPercentLabel}
+              labelLine={false}
             >
               {donutData.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />

@@ -3,10 +3,6 @@ import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { chartColors, chartFont } from '@/data/chartColors';
 import { markUpdated } from '@/data/lastUpdated';
-// Antes: este arquivo mantinha sua PRÓPRIA cópia de Module/ModuleStatus e do
-// array padrão de 22 módulos, separada de data/modulesData.ts. O Cronograma
-// já lia de data/modulesData.ts, então uma edição feita ali podia divergir
-// desta página. Agora os dois lêem exatamente a mesma fonte.
 import { loadModules, MODULES_STORAGE_KEY, type Module, type ModuleStatus } from '@/data/modulesData';
 
 const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: string; icon: typeof CheckCircle2; bgLight: string; border: string; text: string }> = {
@@ -90,6 +86,8 @@ export default function ModulesDashboard() {
     .map((status) => ({ name: columnTitle[status], value: stats[status], color: statusConfig[status].hex }))
     .filter((d) => d.value > 0);
 
+  const donutTotal = donutData.reduce((sum, d) => sum + d.value, 0);
+
   const updateModule = (id: string, patch: Partial<Module>) => {
     setModules((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
   };
@@ -148,7 +146,16 @@ export default function ModulesDashboard() {
               ))}
             </Pie>
             <Tooltip />
-            <Legend wrapperStyle={chartFont} />
+            {/* Porcentagem e contagem ficam na legenda (não sobrepõe fatias
+                pequenas) em vez de só aparecer passando o mouse. */}
+            <Legend
+              wrapperStyle={chartFont}
+              formatter={(value, entry: any) => {
+                const count = entry?.payload?.value ?? 0;
+                const pct = donutTotal ? Math.round((count / donutTotal) * 100) : 0;
+                return `${value}: ${count} (${pct}%)`;
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>

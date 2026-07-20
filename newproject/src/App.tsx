@@ -12,6 +12,7 @@ import TeamPage from '@/pages/TeamPage';
 import OKRs from '@/pages/OKRs';
 import ControlPanel from '@/pages/ControlPanel';
 import Cronograma from '@/pages/Cronograma';
+import OnePager from '@/pages/OnePager';
 import AdminPage from '@/pages/AdminPage';
 
 function Router() {
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/okrs" component={OKRs} />
       <Route path="/control-panel" component={ControlPanel} />
       <Route path="/cronograma" component={Cronograma} />
+      <Route path="/onepager" component={OnePager} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>

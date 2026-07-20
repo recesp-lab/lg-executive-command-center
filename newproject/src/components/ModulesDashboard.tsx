@@ -86,8 +86,6 @@ export default function ModulesDashboard() {
     .map((status) => ({ name: columnTitle[status], value: stats[status], color: statusConfig[status].hex }))
     .filter((d) => d.value > 0);
 
-  const donutTotal = donutData.reduce((sum, d) => sum + d.value, 0);
-
   const updateModule = (id: string, patch: Partial<Module>) => {
     setModules((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
   };
@@ -140,22 +138,14 @@ export default function ModulesDashboard() {
               innerRadius={60}
               outerRadius={100}
               paddingAngle={2}
+              label={({ percent }) => `${Math.round((percent ?? 0) * 100)}%`}
             >
               {donutData.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip />
-            {/* Porcentagem e contagem ficam na legenda (não sobrepõe fatias
-                pequenas) em vez de só aparecer passando o mouse. */}
-            <Legend
-              wrapperStyle={chartFont}
-              formatter={(value, entry: any) => {
-                const count = entry?.payload?.value ?? 0;
-                const pct = donutTotal ? Math.round((count / donutTotal) * 100) : 0;
-                return `${value}: ${count} (${pct}%)`;
-              }}
-            />
+            <Legend wrapperStyle={chartFont} />
           </PieChart>
         </ResponsiveContainer>
       </div>

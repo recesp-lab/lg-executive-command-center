@@ -3,12 +3,16 @@ export interface TeamMember {
   name: string;
   email: string;
   role: string;
-  organization: 'SODIMAC' | 'LG' | 'FALABELLA';
+  organization: 'SODIMAC' | 'LG' | 'FALABELLA' | 'RECRUT.AI';
   department: string;
 }
 
 export const TEAM_STORAGE_KEY = 'lg-dashboard:team-members';
 
+// Exportado para que TeamMembers.tsx leia a MESMA lista padrão, em vez de
+// manter sua própria cópia (foi exatamente essa duplicação - com um tipo
+// de organização diferente em cada arquivo - que quebrou o build do
+// OnePager.tsx: 'RECRUT.AI' existia numa cópia mas não na outra).
 export const defaultTeamMembers: TeamMember[] = [
   { id: '1', name: 'Bruno Rafael Costa Freitas', email: 'bfreitas@sodimac.com.br', role: 'Desenvolvedor', organization: 'SODIMAC', department: 'Desenvolvimento' },
   { id: '2', name: 'Raquel Patta Lisboa', email: 'rlisboa@sodimac.com.br', role: 'Analista de Sistemas', organization: 'SODIMAC', department: 'Análise' },
@@ -29,8 +33,9 @@ export const defaultTeamMembers: TeamMember[] = [
 ];
 
 // Lê a equipe persistida (editada na página Equipe), com fallback garantido
-// para a lista padrão. Usado por Home, Riscos e Auditoria - nunca mostra
-// lista vazia, mesmo no primeiro acesso de um navegador novo.
+// para a lista padrão. Usado por Home, Riscos, Auditoria, One Pager e a
+// própria página Equipe - nunca mostra lista vazia, mesmo no primeiro
+// acesso de um navegador novo.
 export function loadTeamMembers(): TeamMember[] {
   try {
     const saved = localStorage.getItem(TEAM_STORAGE_KEY);

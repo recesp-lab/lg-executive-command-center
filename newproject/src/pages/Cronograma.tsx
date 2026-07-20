@@ -3,6 +3,7 @@ import { Activity, Edit2, Save, X } from 'lucide-react';
 import { useState } from 'react';
 import { loadAuditActions, AUDIT_STORAGE_KEY, type AuditAction } from '@/data/auditData';
 import { loadModules, MODULES_STORAGE_KEY, type Module } from '@/data/modulesData';
+import { markUpdated } from '@/data/lastUpdated';
 
 const SECTIONS = [
   '3.1 Exposição de dados sensíveis (Backup Datamace)',
@@ -56,6 +57,7 @@ export default function Cronograma() {
     setAuditActions(updated);
     try {
       localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(updated));
+      markUpdated();
     } catch {
       // localStorage indisponível
     }
@@ -65,6 +67,7 @@ export default function Cronograma() {
     setModules(updated);
     try {
       localStorage.setItem(MODULES_STORAGE_KEY, JSON.stringify(updated));
+      markUpdated();
     } catch {
       // localStorage indisponível
     }

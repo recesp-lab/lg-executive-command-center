@@ -13,7 +13,10 @@ export interface AuditAction {
 // precisar duplicar lógica de edição.
 export const AUDIT_STORAGE_KEY = 'lg-dashboard:audit-actions';
 
-const defaultAuditActions: AuditAction[] = [
+// Exportado para que AuditPlan.tsx e Cronograma.tsx leiam a MESMA lista
+// padrão, em vez de cada um manter sua própria cópia (que já causou
+// dessincronia antes, do lado de Módulos).
+export const defaultAuditActions: AuditAction[] = [
   { id: '3.1.1', activity: 'Eliminar o backup da rede compartilhada', section: '3.1 Exposição de dados sensíveis (Backup Datamace)', startDate: '2026-06-15', endDate: '2026-06-22', responsible: ['Silvia Melo Neves', 'Denis Soares Dias'], status: 'completed' },
   { id: '3.1.2', activity: 'Migrar para um repositório seguro com controle de acesso', section: '3.1 Exposição de dados sensíveis (Backup Datamace)', startDate: '2026-06-22', endDate: '2026-06-29', responsible: ['Denis Soares Dias'], status: 'completed' },
   { id: '3.1.3', activity: 'Revogar acessos indevidos (incluindo outras áreas)', section: '3.1 Exposição de dados sensíveis (Backup Datamace)', startDate: '2026-06-29', endDate: '2026-07-06', responsible: ['Denis Soares Dias'], status: 'in-progress' },

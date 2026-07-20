@@ -5,6 +5,21 @@ import { chartColors, chartFont } from '@/data/chartColors';
 import { markUpdated } from '@/data/lastUpdated';
 import { loadModules, MODULES_STORAGE_KEY, type Module, type ModuleStatus } from '@/data/modulesData';
 
+// Desenha a porcentagem centralizada dentro da espessura do anel da fatia,
+// em vez de fora com uma linha guia (ficava confuso em fatias pequenas).
+const RADIAN = Math.PI / 180;
+const renderDonutLabel = (props: any) => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#ffffff" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700}>
+      {`${Math.round((percent ?? 0) * 100)}%`}
+    </text>
+  );
+};
+
 const statusConfig: Record<ModuleStatus, { color: string; hex: string; label: string; icon: typeof CheckCircle2; bgLight: string; border: string; text: string }> = {
   completed: {
     color: 'bg-blue-500',
@@ -138,7 +153,8 @@ export default function ModulesDashboard() {
               innerRadius={60}
               outerRadius={100}
               paddingAngle={2}
-              label={({ percent }) => `${Math.round((percent ?? 0) * 100)}%`}
+              label={renderDonutLabel}
+              labelLine={false}
             >
               {donutData.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />

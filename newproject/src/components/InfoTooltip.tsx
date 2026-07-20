@@ -15,9 +15,14 @@ export default function InfoTooltip({ text }: { text: string }) {
         <Info className="w-3.5 h-3.5" />
       </button>
       {open && (
-        <span className="absolute z-20 left-0 top-6 w-64 p-3 bg-white border border-border rounded-lg shadow-lg text-xs text-foreground font-normal normal-case">
-          {text}
-        </span>
+        <>
+          {/* Camada transparente atrás da caixa, só para capturar o clique
+              de "fechar" sem precisar de lógica de clique-fora. */}
+          <span className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <span className="absolute z-50 left-0 top-6 w-72 p-3 bg-white border border-border rounded-lg shadow-2xl text-xs text-foreground font-normal normal-case leading-relaxed">
+            {text}
+          </span>
+        </>
       )}
     </span>
   );

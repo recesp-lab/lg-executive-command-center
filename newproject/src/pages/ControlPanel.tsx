@@ -1,4 +1,5 @@
 import DashboardLayout from '@/components/DashboardLayout';
+import InfoTooltip from '@/components/InfoTooltip';
 import React from 'react';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
 import { loadModules } from '@/data/modulesData';
@@ -187,7 +188,12 @@ export default function ControlPanel() {
             <tbody>
               {indicators.map((item) => (
                 <tr key={item.name} className="border-t border-border">
-                  <td className="p-4">{item.name}</td>
+                  <td className="p-4">
+                    {item.name}
+                    {item.name === 'Health Score do Programa' && (
+                      <InfoTooltip text="Saúde operacional do projeto: Go-Live dos Módulos (50%) + Ações de Auditoria em dia (25%) + Ausência de Riscos Críticos (25%). Não é o mesmo número que 'Progresso do Projeto' em OKRs & KPIs, que mede o atingimento de metas de negócio — são medidas diferentes, de propósito." />
+                    )}
+                  </td>
 
                   <td className="text-center p-4">
                     {item.editableTarget ? (

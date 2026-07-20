@@ -1,5 +1,6 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import ProjectHealthBanner from '@/components/ProjectHealthBanner';
+import InfoTooltip from '@/components/InfoTooltip';
 import { Target, Save, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -110,6 +111,9 @@ export default function OKRs() {
             <span className="ml-2 text-[10px] font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
               manual
             </span>
+          )}
+          {kr.label === 'Progresso do Projeto' && (
+            <InfoTooltip text="Média de atingimento dos 5 pilares de negócio (Eficiência Operacional, Dados e Governança, Experiência Digital, Compliance, Analytics) — mesmo número do Score Geral no Resumo Executivo, mais abaixo. Não é o mesmo número que 'Health Score' no Painel de Controle, que mede a saúde operacional do projeto (módulos, auditoria, riscos) — são medidas diferentes, de propósito." />
           )}
         </td>
         <td className="text-center p-3">
@@ -258,6 +262,7 @@ export default function OKRs() {
 
           <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide mb-3">
             Health Score do Programa
+            <InfoTooltip text="Média de atingimento dos 5 pilares de negócio (Eficiência Operacional, Dados e Governança, Experiência Digital, Compliance, Analytics). Mede o avanço das metas do negócio — diferente do Health Score no Painel de Controle, que mede a saúde operacional do projeto (módulos, auditoria, riscos)." />
           </h3>
 
           <ResponsiveContainer width="100%" height={320}>

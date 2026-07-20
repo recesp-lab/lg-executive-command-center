@@ -8,10 +8,6 @@ import { loadTeamMembers } from '@/data/teamData';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { chartColors, chartFont } from '@/data/chartColors';
 import { markUpdated } from '@/data/lastUpdated';
-// Antes: este arquivo mantinha sua PRÓPRIA cópia de AuditAction e do array
-// padrão de 25 atividades, separada de data/auditData.ts. O Cronograma já
-// lia de data/auditData.ts, então qualquer edição feita ali podia divergir
-// desta página. Agora os dois lêem exatamente a mesma fonte.
 import { loadAuditActions, AUDIT_STORAGE_KEY, type AuditAction } from '@/data/auditData';
 
 export default function AuditPlan() {
@@ -107,6 +103,15 @@ export default function AuditPlan() {
     blocked: auditActions.filter((a) => a.status === 'blocked').length,
   };
 
+  const donutData = [
+    { name: 'Concluídas', value: stats.completed, color: chartColors.green },
+    { name: 'Em Progresso', value: stats.inProgress, color: chartColors.primary },
+    { name: 'Planejadas', value: stats.planned, color: chartColors.amber },
+    { name: 'Bloqueadas', value: stats.blocked, color: chartColors.red },
+  ].filter((d) => d.value > 0);
+
+  const donutTotal = donutData.reduce((sum, d) => sum + d.value, 0);
+
   const handleDownloadPlan = () => {
     const header = ['ID', 'Atividade', 'Seção', 'Início', 'Fim', 'Responsáveis', 'Status'];
     const rows = auditActions.map((a) => [
@@ -193,31 +198,28 @@ export default function AuditPlan() {
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie
-                data={[
-                  { name: 'Concluídas', value: stats.completed, color: chartColors.green },
-                  { name: 'Em Progresso', value: stats.inProgress, color: chartColors.primary },
-                  { name: 'Planejadas', value: stats.planned, color: chartColors.amber },
-                  { name: 'Bloqueadas', value: stats.blocked, color: chartColors.red },
-                ].filter((d) => d.value > 0)}
+                data={donutData}
                 dataKey="value"
                 nameKey="name"
                 innerRadius={60}
                 outerRadius={100}
                 paddingAngle={2}
               >
-                {[
-                  { name: 'Concluídas', value: stats.completed, color: chartColors.green },
-                  { name: 'Em Progresso', value: stats.inProgress, color: chartColors.primary },
-                  { name: 'Planejadas', value: stats.planned, color: chartColors.amber },
-                  { name: 'Bloqueadas', value: stats.blocked, color: chartColors.red },
-                ]
-                  .filter((d) => d.value > 0)
-                  .map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
+                {donutData.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
               </Pie>
               <Tooltip />
-              <Legend wrapperStyle={chartFont} />
+              {/* Porcentagem e contagem ficam na legenda (não sobrepõe fatias
+                  pequenas) em vez de só aparecer passando o mouse. */}
+              <Legend
+                wrapperStyle={chartFont}
+                formatter={(value, entry: any) => {
+                  const count = entry?.payload?.value ?? 0;
+                  const pct = donutTotal ? Math.round((count / donutTotal) * 100) : 0;
+                  return `${value}: ${count} (${pct}%)`;
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>

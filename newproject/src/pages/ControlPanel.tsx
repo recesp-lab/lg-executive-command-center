@@ -191,7 +191,7 @@ export default function ControlPanel() {
                   <td className="p-4">
                     {item.name}
                     {item.name === 'Health Score do Programa' && (
-                      <InfoTooltip text="Saúde operacional do projeto: Go-Live dos Módulos (50%) + Ações de Auditoria em dia (25%) + Ausência de Riscos Críticos (25%). Não é o mesmo número que 'Progresso do Projeto' em OKRs & KPIs, que mede o atingimento de metas de negócio — são medidas diferentes, de propósito." />
+                      <InfoTooltip text="Média ponderada de 3 sinais automáticos: Go-Live dos Módulos (peso 50%), Ações de Auditoria em dia (peso 25%) e Ausência de Riscos Críticos (peso 25%)." />
                     )}
                   </td>
 

@@ -113,7 +113,7 @@ export default function OKRs() {
             </span>
           )}
           {kr.label === 'Progresso do Projeto' && (
-            <InfoTooltip text="Média de atingimento dos 5 pilares de negócio (Eficiência Operacional, Dados e Governança, Experiência Digital, Compliance, Analytics) — mesmo número do Score Geral no Resumo Executivo, mais abaixo. Não é o mesmo número que 'Health Score' no Painel de Controle, que mede a saúde operacional do projeto (módulos, auditoria, riscos) — são medidas diferentes, de propósito." />
+            <InfoTooltip text="Média de atingimento dos 5 pilares de negócio: Eficiência Operacional, Dados e Governança, Experiência Digital, Compliance e Analytics." />
           )}
         </td>
         <td className="text-center p-3">
@@ -262,7 +262,7 @@ export default function OKRs() {
 
           <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide mb-3">
             Health Score do Programa
-            <InfoTooltip text="Média de atingimento dos 5 pilares de negócio (Eficiência Operacional, Dados e Governança, Experiência Digital, Compliance, Analytics). Mede o avanço das metas do negócio — diferente do Health Score no Painel de Controle, que mede a saúde operacional do projeto (módulos, auditoria, riscos)." />
+            <InfoTooltip text="Média de atingimento dos 5 pilares de negócio: Eficiência Operacional, Dados e Governança, Experiência Digital, Compliance e Analytics." />
           </h3>
 
           <ResponsiveContainer width="100%" height={320}>

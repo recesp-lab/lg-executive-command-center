@@ -16,6 +16,7 @@ import OnePager from '@/pages/OnePager';
 import DecisionsPage from '@/pages/DecisionsPage';
 import BudgetPage from '@/pages/BudgetPage';
 import MilestonesPage from '@/pages/MilestonesPage';
+import TrendsPage from '@/pages/TrendsPage';
 import AdminPage from '@/pages/AdminPage';
 
 function Router() {
@@ -32,8 +33,9 @@ function Router() {
       <Route path="/onepager" component={OnePager} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/decisoes" component={DecisionsPage} />
-<Route path="/orcamento" component={BudgetPage} />
-<Route path="/marcos" component={MilestonesPage} />
+      <Route path="/orcamento" component={BudgetPage} />
+      <Route path="/marcos" component={MilestonesPage} />
+      <Route path="/tendencias" component={TrendsPage} />
       <Route component={NotFound} />
     </Switch>
   );

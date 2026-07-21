@@ -165,10 +165,10 @@ export default function DecisionsPage() {
                       />
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => { setEditingId(null); setEditDraft(null); }}>
+                      <Button variant="outline" onClick={() => { setEditingId(null); setEditDraft(null); }}>
                         <X className="w-4 h-4 mr-1" /> Cancelar
                       </Button>
-                      <Button size="sm" className="bg-primary hover:bg-blue-800 text-white" onClick={saveEdit}>
+                      <Button className="bg-primary hover:bg-blue-800 text-white" onClick={saveEdit}>
                         <Save className="w-4 h-4 mr-1" /> Salvar
                       </Button>
                     </div>

@@ -4,95 +4,39 @@ import ModulesDashboard from '@/components/ModulesDashboard';
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { loadRisks, getRiskMetrics } from '@/data/risksData';
+import { loadModules } from '@/data/modulesData';
+import { loadTeamMembers } from '@/data/teamData';
 import { loadLastUpdated } from '@/data/lastUpdated';
 import { useLocation } from 'wouter';
 
 export default function Home() {
   const [, navigate] = useLocation();
 
-  // Lê os mesmos riscos (incluindo edições salvas) usados na página de
-  // Riscos, então este número nunca fica dessincronizado.
+  // Todos os números vêm dos mesmos loaders usados nas outras páginas -
+  // fonte única, com fallback garantido mesmo no primeiro acesso.
   const riskMetrics = getRiskMetrics(loadRisks());
-const teamMembers = JSON.parse(
-  localStorage.getItem('lg-dashboard:team-members') || '[]'
-);
+  const teamMembers = loadTeamMembers();
+  const modules = loadModules();
 
-const modules = JSON.parse(
-  localStorage.getItem('lg-dashboard:modules') || '[]'
-);
-  
-const completedModules = modules.filter(
-  (m: any) => m.status === 'completed'
-).length;
+  const completedModules = modules.filter((m) => m.status === 'completed').length;
+  const completionPercentage = modules.length > 0 ? Math.round((completedModules / modules.length) * 100) : 0;
 
-const completionPercentage =
-  modules.length > 0
-    ? Math.round(
-        (completedModules / modules.length) * 100
-      )
-    : 0;
-  
-const executiveStatus =
-  riskMetrics.critical >= 3
-    ? 'red'
-    : riskMetrics.critical >= 1
-    ? 'yellow'
-    : 'green';
-const projectDeadline = new Date('2026-08-31');
+  const projectDeadline = new Date('2026-08-31');
+  const today = new Date();
+  const daysToDeadline = Math.max(0, Math.ceil((projectDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
 
-const today = new Date();
+  const lastUpdated = loadLastUpdated();
+  const lastUpdatedLabel = lastUpdated
+    ? lastUpdated.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : 'sem edições registradas ainda';
 
-const daysToDeadline = Math.max(
-  0,
-  Math.ceil(
-    (projectDeadline.getTime() - today.getTime()) /
-      (1000 * 60 * 60 * 24)
-  )
-);
-
-// Antes: uma data fixa escrita no código (const LAST_UPDATED = '06/07/2026'),
-// que nunca mudava sozinha. Agora reflete de verdade a última vez que
-// qualquer dado foi editado em qualquer página do dashboard.
-const lastUpdated = loadLastUpdated();
-const lastUpdatedLabel = lastUpdated
-  ? lastUpdated.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  : 'sem edições registradas ainda';
-  
+  // Cada card leva direto para a página onde o número nasce - a Home é o
+  // hub, o detalhe mora nas páginas específicas.
   const quickStats = [
-{
-  icon: TrendingUp,
-  label: 'Taxa de Conclusão',
-  value: `${completionPercentage}%`,
-  color: 'text-blue-600',
-  bgColor: 'bg-blue-50',
-},
-{
-  icon: Users,
-  label: 'Membros da Equipe',
-  value: String(teamMembers.length),
-  color: 'text-green-600',
-  bgColor: 'bg-green-50',
-},
-{
-  icon: Calendar,
-  label: 'Dias até Deadline',
-  value: String(daysToDeadline),
-  color: 'text-purple-600',
-  bgColor: 'bg-purple-50',
-},
-    {
-      icon: AlertCircle,
-      label: 'Riscos Críticos',
-      value: String(riskMetrics.critical),
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-    },
+    { icon: TrendingUp, label: 'Taxa de Conclusão', value: `${completionPercentage}%`, color: 'text-blue-600', bgColor: 'bg-blue-50', href: '/cronograma' },
+    { icon: Users, label: 'Membros da Equipe', value: String(teamMembers.length), color: 'text-green-600', bgColor: 'bg-green-50', href: '/team' },
+    { icon: Calendar, label: 'Dias até Deadline', value: String(daysToDeadline), color: 'text-purple-600', bgColor: 'bg-purple-50', href: '/marcos' },
+    { icon: AlertCircle, label: 'Riscos Críticos', value: String(riskMetrics.critical), color: 'text-red-600', bgColor: 'bg-red-50', href: '/risks' },
   ];
 
   const handleExportData = () => {
@@ -115,19 +59,23 @@ const lastUpdatedLabel = lastUpdated
   return (
     <DashboardLayout currentPage="dashboard">
       <div className="p-8">
+        {/* Hero Section */}
         <div className="mb-8">
-          {/* Hero Section: gradiente CSS puro, sem <img> externa -- a versão
-              anterior apontava para um arquivo inexistente
-              (/manus-storage/hero-dashboard_...png), e por isso o navegador
-              exibia o texto alt="Hero Dashboard" no lugar da imagem quebrada. */}
-          <div className="relative rounded-lg overflow-hidden mb-4 h-48 bg-gradient-to-r from-blue-900 to-blue-700 flex items-center">
-            <div className="px-8">
-              <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Projeto LG
-              </h1>
-              <p className="text-xl text-blue-100">
-                Dashboard Executivo de Gestão de Projetos
-              </p>
+          <div className="relative rounded-lg overflow-hidden mb-4">
+            <img
+              src="/manus-storage/hero-dashboard_5313de43.png"
+              alt="Hero Dashboard"
+              className="w-full h-48 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-700/60 flex items-center">
+              <div className="px-8">
+                <h1 className="text-5xl font-bold text-white mb-2">
+                  Projeto LG
+                </h1>
+                <p className="text-xl text-blue-100">
+                  Dashboard Executivo de Gestão de Projetos
+                </p>
+              </div>
             </div>
           </div>
 
@@ -135,57 +83,21 @@ const lastUpdatedLabel = lastUpdated
             Última atualização de dados: {lastUpdatedLabel}
           </p>
 
-<div className="mb-6">
-  <div
-    className={`p-6 rounded-lg border-2 ${
-      executiveStatus === 'green'
-        ? 'bg-green-50 border-green-300'
-        : executiveStatus === 'yellow'
-        ? 'bg-yellow-50 border-yellow-300'
-        : 'bg-red-50 border-red-300'
-    }`}
-  >
-    <div className="flex items-center gap-4">
-      <div className="text-4xl">
-        {executiveStatus === 'green'
-          ? '🟢'
-          : executiveStatus === 'yellow'
-          ? '🟡'
-          : '🔴'}
-      </div>
-
-      <div>
-        <h2 className="font-bold text-lg">
-          Status Executivo do Projeto
-        </h2>
-
-        <p>
-          {executiveStatus === 'green'
-            ? 'Projeto Saudável'
-            : executiveStatus === 'yellow'
-            ? 'Projeto em Atenção'
-            : 'Projeto Crítico'}
-        </p>
-
-        <p className="text-sm mt-1">
-          Riscos Críticos: {riskMetrics.critical}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-          {/* Quick Stats */}
+          {/* Quick Stats - clicáveis, levam à página de origem do número */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickStats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <div key={index} className="card-premium p-6">
+                <button
+                  key={index}
+                  onClick={() => navigate(stat.href)}
+                  className="card-premium p-6 text-left hover:shadow-md transition-shadow cursor-pointer"
+                  title={`Ver detalhes de ${stat.label}`}
+                >
                   <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground font-semibold">
-                        {stat.label}
-                      </p>
-                    </div>
+                    <p className="text-xs text-muted-foreground font-semibold">
+                      {stat.label}
+                    </p>
                     <div className={`${stat.bgColor} p-3 rounded-lg`}>
                       <Icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
@@ -193,7 +105,7 @@ const lastUpdatedLabel = lastUpdated
                   <p className="text-3xl font-mono font-bold text-foreground">
                     {stat.value}
                   </p>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -209,107 +121,16 @@ const lastUpdatedLabel = lastUpdated
           <RiskSemaphore metrics={riskMetrics} />
         </div>
 
-        {/* Timeline + Key Metrics side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Project Timeline */}
-          <div className="bg-white rounded-lg border border-border shadow-sm p-6">
-            <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Cronograma do Projeto
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-foreground">Fase 1: Planejamento</p>
-                  <span className="text-xs font-bold text-green-600">100%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Concluído em 15/06/2026</p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-foreground">Fase 2: Desenvolvimento</p>
-                  <span className="text-xs font-bold text-blue-600">65%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Prazo: 01/08/2026</p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-foreground">Fase 3: Testes & QA</p>
-                  <span className="text-xs font-bold text-yellow-600">25%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '25%' }}></div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Prazo: 15/08/2026</p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-foreground">Fase 4: Deploy</p>
-                  <span className="text-xs font-bold text-gray-600">0%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
-                </div>
- <p className="text-xs text-muted-foreground mt-1">Prazo: 01/09/2026</p>
-</div>
-</div>
-</div>
-
-{/* Key Metrics */}
-          <div className="bg-white rounded-lg border border-border shadow-sm p-6">
-            <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Indicadores-Chave
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-
-  <div className="p-4 bg-secondary rounded-lg">
-    <p className="text-xs text-muted-foreground font-semibold mb-2">
-      Saúde do Programa
-    </p>
-
-    <p className="text-2xl font-bold text-foreground">
-      {completionPercentage}%
-    </p>
-
-    <p className="text-xs text-blue-600 font-semibold mt-1">
-      % de módulos concluídos
-    </p>
-  </div>
-  <div className="p-4 bg-secondary rounded-lg">
-    <p className="text-xs text-muted-foreground font-semibold mb-2">
-      Riscos Totais
-    </p>
-
-    <p className="text-2xl font-bold text-foreground">
-      {riskMetrics.critical + riskMetrics.medium + riskMetrics.low}
-    </p>
-
-    <p className="text-xs text-red-600 font-semibold mt-1">
-      Monitorados pelo programa
-    </p>
-  </div>
-</div>
-          </div>
-        </div>
-
-        {/* Action Buttons - now wired to real actions */}
+        {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 justify-center py-8">
           <Button
             className="bg-primary hover:bg-blue-800 text-white px-6"
-            onClick={() => navigate('/weekly')}
+            onClick={() => navigate('/onepager')}
           >
-            Agendar Reunião Semanal
+            Abrir One Pager Executivo
           </Button>
-          <Button variant="outline" className="px-6" onClick={() => window.print()}>
-            Gerar Relatório
+          <Button variant="outline" className="px-6" onClick={() => navigate('/weekly')}>
+            Agendar Reunião Semanal
           </Button>
           <Button variant="outline" className="px-6" onClick={handleExportData}>
             Exportar Dados

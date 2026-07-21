@@ -61,13 +61,8 @@ export default function Home() {
       <div className="p-8">
         {/* Hero Section */}
         <div className="mb-8">
-          <div className="relative rounded-lg overflow-hidden mb-4">
-            <img
-              src="/manus-storage/hero-dashboard_5313de43.png"
-              alt="Hero Dashboard"
-              className="w-full h-48 object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-700/60 flex items-center">
+          <div className="rounded-lg overflow-hidden mb-4 bg-gradient-to-r from-blue-900 to-blue-700">
+            <div className="h-48 flex items-center">
               <div className="px-8">
                 <h1 className="text-5xl font-bold text-white mb-2">
                   Projeto LG

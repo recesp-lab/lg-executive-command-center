@@ -13,6 +13,9 @@ import OKRs from '@/pages/OKRs';
 import ControlPanel from '@/pages/ControlPanel';
 import Cronograma from '@/pages/Cronograma';
 import OnePager from '@/pages/OnePager';
+import DecisionsPage from '@/pages/DecisionsPage';
+import BudgetPage from '@/pages/BudgetPage';
+import MilestonesPage from '@/pages/MilestonesPage';
 import AdminPage from '@/pages/AdminPage';
 
 function Router() {
@@ -28,6 +31,9 @@ function Router() {
       <Route path="/cronograma" component={Cronograma} />
       <Route path="/onepager" component={OnePager} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/decisoes" component={DecisionsPage} />
+<Route path="/orcamento" component={BudgetPage} />
+<Route path="/marcos" component={MilestonesPage} />
       <Route component={NotFound} />
     </Switch>
   );

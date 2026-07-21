@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target, SlidersHorizontal, Shield, Activity, FileText } from 'lucide-react';
+import { BarChart3, AlertCircle, Calendar, ClipboardList, Users, Target, SlidersHorizontal, Shield, Activity, FileText, Gavel, Wallet, Flag } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel' | 'cronograma' | 'onepager';
+  currentPage?: 'dashboard' | 'weekly' | 'risks' | 'audit' | 'team' | 'okrs' | 'admin' | 'control-panel' | 'cronograma' | 'onepager' | 'decisoes' | 'orcamento' | 'marcos';
 }
 
 export default function DashboardLayout({ children, currentPage = 'dashboard' }: DashboardLayoutProps) {
@@ -13,11 +13,14 @@ export default function DashboardLayout({ children, currentPage = 'dashboard' }:
     { id: 'onepager', label: 'One Pager', icon: FileText, href: '/onepager' },
     { id: 'risks', label: 'Riscos', icon: AlertCircle, href: '/risks' },
     { id: 'weekly', label: 'Semanal', icon: Calendar, href: '/weekly' },
+    { id: 'decisoes', label: 'Decisões & Atas', icon: Gavel, href: '/decisoes' },
     { id: 'audit', label: 'Auditoria', icon: ClipboardList, href: '/audit' },
     { id: 'team', label: 'Equipe', icon: Users, href: '/team' },
     { id: 'okrs', label: 'OKRs & KPIs', icon: Target, href: '/okrs' },
     { id: 'control-panel', label: 'Painel de Controle', icon: SlidersHorizontal, href: '/control-panel' },
     { id: 'cronograma', label: 'Cronograma', icon: Activity, href: '/cronograma' },
+    { id: 'marcos', label: 'Marcos', icon: Flag, href: '/marcos' },
+    { id: 'orcamento', label: 'Orçamento', icon: Wallet, href: '/orcamento' },
     { id: 'admin', label: 'Administração', icon: Shield, href: '/admin' },
   ];
 
